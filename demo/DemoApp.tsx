@@ -27,8 +27,9 @@ function DemoApp () {
 		['loaded', function () {console.log('Report has loaded');}],
 		['rendered', function () {
 			console.log('Report has rendered');
+			
 			// Update display message
-			setMessage('Report is Embedded!')
+			setMessage('The report is rendered')
 		}],
 		['error', function (event) { console.error(event.detail); }]
 	]);
@@ -36,9 +37,7 @@ function DemoApp () {
 	// Fetch sample report's config (eg. embedUrl and AccessToken) for embedding
 	const mockSignIn = async () => {
 
-		// Update display message
-		setMessage('Fetching accessToken')
-
+		// Fetch sample report's embed config
 		const reportConfigResponse = await fetch(sampleReportUrl);
 		
 		if (!reportConfigResponse.ok) {
@@ -49,7 +48,7 @@ function DemoApp () {
 		const reportConfig = await reportConfigResponse.json();
 
 		// Update display message
-		setMessage('AccessToken is set successfully. Loading the PowerBI Report')
+		setMessage('The access token is successfully set. Loading the Power BI report')
 
 		// Update the state "sampleReportConfig" and re-render DemoApp component
 		setReportConfig({
@@ -75,11 +74,34 @@ function DemoApp () {
 		});
 	}
 
-	const [displayMessage, setMessage] = useState(`The report is bootstraped. Click 'Embed Report' button below to provide Access Token`);
+	const [displayMessage, setMessage] = useState(`The report is bootstrapped. Click the Embed Report button to set the access token`);
+
+	const controlButtons = 
+		<div className = "controls">
+			<button onClick = { mockSignIn }>
+				Embed Report</button>
+
+			<button onClick = { changeSettings }>
+				Hide filter pane</button>
+		</div>;
+
+	const header = 
+		<div className = "header">
+			<div className = "title">React wrapper demo app</div>
+		</div>;
+
+	const footer = 
+		<div className = "footer">
+			<div className = "footer-text">
+				GitHub: &nbsp;
+				<a href="https://github.com/microsoft/PowerBI-client-react">https://github.com/microsoft/PowerBI-client-react</a>
+			</div>
+		</div>;
 	
 	return (
 		<div>
-			<h3>Sample Report:</h3>
+			{ header }
+			
 			<PowerBIEmbed
 				embedConfig = { sampleReportConfig }
 				eventHandlers = { eventHandlersMap }
@@ -89,15 +111,16 @@ function DemoApp () {
 					console.log(`Embedded object of type "${ report.embedtype }" received`);
 				} }
 			/>
-			<h4>
+
+			<div className = "hr"></div>
+
+			<div className = "displayMessage">
 				{ displayMessage }
-			</h4>
+			</div>
 
-			<button onClick = { mockSignIn }>
-				Embed Report</button>
+			{ controlButtons }
 
-			<button onClick = { changeSettings }>
-				Hide filter pane</button>
+			{ footer }
 		</div>
 	);
 }

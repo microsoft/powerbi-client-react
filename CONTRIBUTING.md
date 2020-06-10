@@ -24,15 +24,12 @@ Or if using VScode: `Ctrl + Shift + B`
 ```
 npm test
 ```
-By default the tests run using Chrome
+By default the tests run using Headless Chrome
 
-The build and tests use webpack to compile all the source modules into one bundled module that can be executed in the browser.
+The build and tests use webpack to compile all the source modules into bundled module that can be executed in the browser.
 
 ## Running the demo
 
-If you want to embed any powerbi artifact in demo, set the `embedUrl` and `accessToken` in the [config file](demo\config.ts) for that artifact type.
-
-Serve the demo:
 ```
 npm run demo
 ```

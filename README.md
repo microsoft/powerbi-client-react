@@ -1,47 +1,15 @@
 # powerbi-client-react
-A React wrapper library for embedding PowerBI artifacts.
+Power BI React component. This library lets you embed Power BI report, dashboard, dashboard tile, report visual, or Q&A in your React application.
 
-## Table of contents
+## Quick Start
 
-<!--ts-->
-* [Sample Usage](#sample-usage)
-* [Run Demo](#run-demo)
-* [Docs](#docs)
-	* Props interface
-	* PowerBI Embed
-	* Get reference to embedded object
-	* How to set new accessToken
-	* Set event handlers
-	* Reset event handlers
-	* Apply style class
-	* Update settings (Report only)
-	* PowerBI Bootstrap
-* [Flow diagram](#flow-diagram-for-the-wrapper-component)
-* [Dependencies](#dependencies)
-<!--te-->
-
-## Sample Usage
-
-How to import:
+## Import
 
 ```jsx
 import { PowerBIEmbed } from 'powerbi-client-react';
 ```
 
-How to bootstrap a PowerBI report:
-```jsx
-<PowerBIEmbed
-	embedConfig = {{
-		type: 'report',   // Supported types: report, dashboard, tile, visual and qna
-		id: undefined, 
-		embedUrl: undefined,
-		accessToken: undefined,    // Keep as empty string, null or undefined
-		tokenType: models.TokenType.Embed
-	}}
-/>
-```
-
-How to embed a PowerBI report:
+## Embed a Power BI report
 ```jsx
 <PowerBIEmbed
 	embedConfig = {{
@@ -76,59 +44,75 @@ How to embed a PowerBI report:
 />
 ```
 
-## Run Demo
+### How to [bootstrap a PowerBI report](https://aka.ms/PbieBootstrap):
+```jsx
+<PowerBIEmbed
+	embedConfig = {{
+		type: 'report',   // Supported types: report, dashboard, tile, visual and qna
+		id: undefined, 
+		embedUrl: undefined,
+		accessToken: undefined,    // Keep as empty string, null or undefined
+		tokenType: models.TokenType.Embed
+	}}
+/>
+```
+Note: To embed the report after bootstrap, update the props (with atleast accessToken).
+
+## Demo
+
+A React application that embeds a sample report using the _PowerBIEmbed_ component.<br/>
+It demonstrates the complete flow from bootstrapping the report, to embedding and updating the embedded report.
 
 To run the demo on localhost, run the following commands:
 
 ```
-npm install
 npm run install:demo
 npm run demo
 ```
 
 Redirect to http://localhost:8080/ to view in the browser.
 
-## Docs
-|Topic|Details|
+## Flow Diagram for the Wrapper Component:
+![Flow Diagram](./resources/react_wrapper_flow_diagram.png)
+
+## Usage
+|Use case|Details|
 |:------|:------|
-|PowerBI Embed|To embed your powerbi artifact, pass the component with atleast _type_, _embedUrl_ and _accessToken_ in _embedConfig_ prop.|
-|Get reference to embedded object|Pass a callback method which accepts the embedded object as parameter to the _getEmbed_ of props.<br/>Refer to the _getEmbed_ prop in [Sample Usage](#sample-usage).|
+|Embed Power BI|To embed your powerbi artifact, pass the component with atleast _type_, _embedUrl_ and _accessToken_ in _embedConfig_ prop.|
+|Get reference to the embedded object|Pass a callback method which accepts the embedded object as parameter to the _getEmbed_ of props.<br/>Refer to the _getEmbed_ prop in [Quick Start](#Quick-Start).|
 |Apply style class|Pass the name(s) of classes to be set as "classname" for the embed container div via _className_ of props.|
 |Set event handlers|Pass a map object of event name (string) and event handler (function) to the _eventHandlers_ of props. <br/>Key: Event name <br/>Value: Method to be triggered|
 |Reset event handlers|To reset event handler for an event, set the event handler's value as `null` in the _eventHandlers_ map of props.|
-|How to set new accessToken|To set new accessToken in the same embedded powerbi artifact, pass the updated _accessToken_ in _embedConfig_ of props.<br/>Example scenario: _Current token has expired_.|
-|Update settings (Report type only)|To update the report settings, update the _embedConfig.settings_ property of props.<br/>Refer to the _embedConfig.settings_ prop in [Sample Usage](#sample-usage).|
-|PowerBI Bootstrap|To [bootstrap your powerbi entity](https://github.com/microsoft/PowerBI-JavaScript/wiki/Bootstrap-For-Better-Performance), call the component without _accessToken_ in _embedConfig_ of props.<br/>__Note__: _embedConfig_ of props should atleast contain __type__ of the powerbi artifact being embedded. <br/>Eg: "report", "dashboard", "tile", "visual" or "qna".<br/>Refer How to bootstrap a report section in [Sample Usage](#sample-usage).|
+|Set new accessToken|To set new accessToken in the same embedded powerbi artifact, pass the updated _accessToken_ in _embedConfig_ of props.<br/>Example scenario: _Current token has expired_.|
+|Update settings (Report type only)|To update the report settings, update the _embedConfig.settings_ property of props.<br/>Refer to the _embedConfig.settings_ prop in [Quick Start](#Quick-Start).|
+|Bootstrap Power BI|To [bootstrap your powerbi entity](https://aka.ms/PbieBootstrap), pass the props to the component without _accessToken_ in _embedConfig_.<br/>__Note__: _embedConfig_ of props should atleast contain __type__ of the powerbi entity being embedded. <br/>Available types: "report", "dashboard", "tile", "visual" and "qna".<br/>Refer to _How to bootstrap a report_ section in [Quick Start](#Quick-Start).|
 
-### Props interface:
+Note: __Power BI report authoring APIs__ and __phased embedding__ are not supported with powerbi-client-react.
+
+### Props interface
 
 ```ts
 interface EmbedProps {
 
-	// Configuration for embedding the PowerBI entity
+	// Configuration for embedding the PowerBI entity (required)
 	embedConfig: IEmbedConfiguration | IQnaEmbedConfiguration
 
-	// Callback method to get the embedded PowerBI entity object (Optional)
+	// Callback method to get the embedded PowerBI entity object (optional)
 	getEmbed?: { (embeddedComponent: Embed): void }
 
-	// Map of pair of event name and its handler method to be triggered on the event (Optional)
+	// Map of pair of event name and its handler method to be triggered on the event (optional)
 	eventHandlers?: Map<string, service.IEventHandler<any> | null>
 
-	// CSS class to be set on the embedding container (Optional)
+	// CSS class to be set on the embedding container (optional)
 	cssClassName?: string
 
-	// Provide a custom implementation of PowerBI service (Optional)
+	// Provide a custom implementation of PowerBI service (optional)
 	service?: service.Service
 }
 ```
 
-### Flow Diagram for the Wrapper Component:
-![Flow Diagram](./resources/react_wrapper_flow_diagram.png)
-
 ## Dependencies
+[powerbi-client](https://www.npmjs.com/package/powerbi-client)
 
-1.  powerbi-client
-
-## Peer-Dependencies
-
-1.  react
+## Peer dependencies
+[react](https://www.npmjs.com/package/react)

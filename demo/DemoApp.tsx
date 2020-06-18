@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import React, { useState } from 'react';
 import { models, Report } from 'powerbi-client';
 import { PowerBIEmbed } from 'powerbi-client-react';

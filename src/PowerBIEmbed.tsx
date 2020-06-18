@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import React from "react";
 import { service, factories, Report, Embed, Dashboard, Tile, Qna, IEmbedConfiguration, Visual } from 'powerbi-client';
 import { IQnaEmbedConfiguration, IEmbedSettings, IVisualEmbedConfiguration } from "embed";

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 module.exports = {
 	parser: "@typescript-eslint/parser", // Specifies the ESLint parser
 	extends: [

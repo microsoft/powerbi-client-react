@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState } from 'react';
-import { models, Report } from 'powerbi-client';
+import { models, Report, Embed, IEmbedConfiguration, service } from 'powerbi-client';
 import { PowerBIEmbed } from 'powerbi-client-react';
 import './DemoApp.css';
 
@@ -17,7 +17,7 @@ function DemoApp () {
 
 	// Report config useState hook
 	// Values for properties like embedUrl, accessToken and settings will be set on click of buttons below
-	const [sampleReportConfig, setReportConfig] = useState({
+	const [sampleReportConfig, setReportConfig] = useState<IEmbedConfiguration>({
 		type: 'report',
 		embedUrl: undefined,
 		tokenType: models.TokenType.Embed,
@@ -34,7 +34,9 @@ function DemoApp () {
 			// Update display message
 			setMessage('The report is rendered')
 		}],
-		['error', function (event) { console.error(event.detail); }]
+		['error', function (event: service.ICustomEvent<any>) { 
+			console.error(event.detail); 
+		}]
 	]);
 	
 	// Fetch sample report's config (eg. embedUrl and AccessToken) for embedding
@@ -109,8 +111,8 @@ function DemoApp () {
 				embedConfig = { sampleReportConfig }
 				eventHandlers = { eventHandlersMap }
 				cssClassName = { "report-style-class" }
-				getEmbeddedComponent = { (embedObject:Report) => {
-					report = embedObject;
+				getEmbeddedComponent = { (embedObject:Embed) => {
+					report = embedObject as Report;
 					console.log(`Embedded object of type "${ report.embedtype }" received`);
 				} }
 			/>

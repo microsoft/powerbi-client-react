@@ -89,6 +89,8 @@ Redirect to http://localhost:8080/ to view in the browser.
 
 Note: __Power BI report authoring APIs__ and __phased embedding__ are not supported with powerbi-client-react.
 
+Note: To use this library in IE browser, use [react-app-polyfill](https://www.npmjs.com/package/react-app-polyfill) to add support for the incompatible features. Refer to the imports of [demo/index.tsx](demo\index.tsx).
+
 ### Props interface
 
 ```ts

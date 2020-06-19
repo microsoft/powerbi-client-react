@@ -41,7 +41,8 @@ export enum EmbedType {
 export class PowerBIEmbed extends React.Component<EmbedProps> {
 
 	// Embedded entity
-	private embed?: Embed;
+	// Note: Do not read or assign to this member variable directly, instead use the getter and setter
+	private _embed?: Embed;
 
 	// Powerbi service
 	private powerbi: service.Service;
@@ -51,6 +52,19 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 
 	// JSON stringify of prev event handler map
 	private prevEventHandlerMapString = '';
+
+	// Getter for this._embed
+	private get embed(): Embed | undefined {
+		return this._embed;
+	};
+
+	// Setter for this._embed
+	private set embed(newEmbedInstance: Embed | undefined) {
+		this._embed = newEmbedInstance;
+
+		// Invoke callback method in props to return this embed instance
+		this.invokeGetEmbedCallback();
+	};
 
 	constructor(props: EmbedProps) {
 		super(props);
@@ -79,9 +93,6 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 				this.embed = this.powerbi.bootstrap(this.containerRef.current, this.props.embedConfig);
 			}
 		}
-
-		// Invoke callback method in Props
-		this.getEmbedCallback();
 
 		// Set event handlers if available
 		if (this.props.eventHandlers && this.embed) {
@@ -138,7 +149,7 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 		if (this.containerRef.current
 			&& (!prevProps.embedConfig.accessToken
 				|| this.props.embedConfig.embedUrl !== prevProps.embedConfig.embedUrl)) {
-			this.embed = this.powerbi.embed(this.containerRef.current, this.props.embedConfig);
+					this.embed = this.powerbi.embed(this.containerRef.current, this.props.embedConfig);
 		}
 
 		// Set new access token,
@@ -152,9 +163,6 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 					console.error(`setAccessToken error: ${error}`); 
 				});
 		}
-	
-		// Invoke callback method in Props
-		this.getEmbedCallback();
 	}
 
 	/**
@@ -241,7 +249,7 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 	 * 
 	 * @returns void
 	 */
-	private getEmbedCallback(): void {
+	private invokeGetEmbedCallback(): void {
 		if (this.props.getEmbeddedComponent && this.embed) {
 			this.props.getEmbeddedComponent(this.embed);
 		}

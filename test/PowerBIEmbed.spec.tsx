@@ -378,6 +378,76 @@ describe('tests of PowerBIEmbed', function () {
 		});
 	});
 
+	describe('tests for getEmbeddedComponent callback', () => {
+		it('invokes getEmbeddedComponent on embed', () => {
+			// Arrange
+			let mockgetEmbeddedComponent = jasmine.createSpy('getEmbeddedComponent');
+
+			// Act
+			act(() => {
+	
+				ReactDOM.render(
+					<PowerBIEmbed 
+						embedConfig = { {
+							type:'report',
+							id: 'fakeId',
+							embedUrl: 'fakeUrl',
+							accessToken: 'fakeToken'
+						} }
+						getEmbeddedComponent = {mockgetEmbeddedComponent}
+					/>, container);
+			});
+
+			// Assert
+			expect(mockgetEmbeddedComponent).toHaveBeenCalledTimes(1);
+		});
+
+		it('invokes getEmbeddedComponent once on embed and not on settings update', () => {
+			// Arrange
+			let mockgetEmbeddedComponent = jasmine.createSpy('getEmbeddedComponent');
+
+			// Act
+			act(() => {
+	
+				ReactDOM.render(
+					<PowerBIEmbed 
+						embedConfig = { {
+							type:'report',
+							id: 'fakeId',
+							embedUrl: 'fakeUrl',
+							accessToken: 'fakeToken'
+						} }
+						getEmbeddedComponent = {mockgetEmbeddedComponent}
+					/>, container);
+			});
+
+			// Update settings
+			act(() => {
+	
+				ReactDOM.render(
+					<PowerBIEmbed 
+						embedConfig = { {
+							type:'report',
+							id: 'fakeId',
+							embedUrl: 'fakeUrl',
+							accessToken: 'fakeToken',
+							settings: {
+								panes: {
+									filters: {
+										visible: false
+									}
+								}
+							}
+						} }
+						getEmbeddedComponent = {mockgetEmbeddedComponent}
+					/>, container);
+			});
+
+			// Assert
+			expect(mockgetEmbeddedComponent).toHaveBeenCalledTimes(1);
+		});
+	});
+
 	describe('tests for setting event handlers', () => {
 		it('clears and sets the event handlers', () => {
 			// Arrange

@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import 'react-app-polyfill/ie11';	// For PhantomJS compatibility
+import 'react-app-polyfill/stable';	// For PhantomJS compatibility
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { act, isElement } from 'react-dom/test-utils';

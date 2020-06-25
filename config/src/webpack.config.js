@@ -7,17 +7,21 @@ module.exports = {
 	entry: path.resolve('src/PowerBIEmbed.tsx'),
 	output: {
 		library: 'powerbi-client-react',
-		libraryTarget: 'amd',
+		libraryTarget: 'umd',
 		path: path.resolve('dist'),
 		filename: 'powerbi-client-react.js'
 	},
+	externals: [
+		'react',
+		'powerbi-client'
+	],
 	module: {
 		rules: [
 			{
 				test: /\.ts(x)?$/,
 				loader: 'ts-loader',
 				options: {
-						configFile: path.resolve('config/src/tsconfig.json')
+					configFile: path.resolve('config/src/tsconfig.json')
 				},
 				exclude: /node_modules/
 			},

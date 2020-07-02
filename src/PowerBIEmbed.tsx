@@ -266,7 +266,7 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 		} 
 
 		switch (this.props.embedConfig.type) {
-			case EmbedType.Report:
+			case EmbedType.Report: {
 
 				// Typecasted to IEmbedSettings as props.embedConfig.settings can be ISettings via IQnaEmbedConfiguration
 				const settings = this.props.embedConfig.settings as IEmbedSettings;
@@ -277,7 +277,7 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 						console.error(`Error in method updateSettings: ${error}`);
 					});
 				break;
-
+			}
 			case EmbedType.Dashboard:
 			case EmbedType.Tile:
 			case EmbedType.Qna:

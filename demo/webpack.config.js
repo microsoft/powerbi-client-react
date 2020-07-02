@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-let path = require('path');
+const path = require('path');
 
 module.exports = {
 	mode: 'development',

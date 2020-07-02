@@ -38,7 +38,7 @@ import { PowerBIEmbed } from 'powerbi-client-react';
 		
 	cssClassName = { "report-style-class" }
 
-	getEmbed = { (embeddedReport) => {
+	getEmbeddedComponent = { (embeddedReport) => {
 		this.report = embeddedReport as Report;
 	}}
 />
@@ -63,6 +63,14 @@ Note: To embed the report after bootstrap, update the props (with atleast access
 A React application that embeds a sample report using the _PowerBIEmbed_ component.<br/>
 It demonstrates the complete flow from bootstrapping the report, to embedding and updating the embedded report.
 
+Pre-requisite commands to be run only once:
+
+```
+npm install
+npm run build
+npm pack
+```
+
 To run the demo on localhost, run the following commands:
 
 ```
@@ -71,6 +79,10 @@ npm run demo
 ```
 
 Redirect to http://localhost:8080/ to view in the browser.
+
+Note: _powerbi-client-react_ is installed in demo app via .tgz file (output of `npm pack`). 
+This is required (only in demo app) to work with the _powerbi-report-authoring_ package.
+In your React App, just add  _[powerbi-report-authoring](https://www.npmjs.com/package/powerbi-report-authoring)_ as NPM dependencies.
 
 ## Flow Diagram for the Wrapper Component:
 ![Flow Diagram](./resources/react_wrapper_flow_diagram.png)
@@ -84,10 +96,11 @@ Redirect to http://localhost:8080/ to view in the browser.
 |Set event handlers|Pass a map object of event name (string) and event handler (function) to the _eventHandlers_ of props. <br/>Key: Event name <br/>Value: Method to be triggered|
 |Reset event handlers|To reset event handler for an event, set the event handler's value as `null` in the _eventHandlers_ map of props.|
 |Set new accessToken|To set new accessToken in the same embedded powerbi artifact, pass the updated _accessToken_ in _embedConfig_ of props.<br/>Example scenario: _Current token has expired_.|
-|Update settings (Report type only)|To update the report settings, update the _embedConfig.settings_ property of props.<br/>Refer to the _embedConfig.settings_ prop in [Quick Start](#Quick-Start).|
+|Update settings (Report type only)|To update the report settings, update the _embedConfig.settings_ property of props.<br/>Refer to the _embedConfig.settings_ prop in [Quick Start](#Quick-Start).<br/>__Note__: Update the settings only by updating embedConfig prop|
 |Bootstrap Power BI|To [bootstrap your powerbi entity](https://aka.ms/PbieBootstrap), pass the props to the component without _accessToken_ in _embedConfig_.<br/>__Note__: _embedConfig_ of props should atleast contain __type__ of the powerbi entity being embedded. <br/>Available types: "report", "dashboard", "tile", "visual" and "qna".<br/>Refer to _How to bootstrap a report_ section in [Quick Start](#Quick-Start).|
+|Using with PowerBI Report Authoring|1. Install [powerbi-report-authoring](https://www.npmjs.com/package/powerbi-report-authoring) as npm dependency.<br>2. Use the report authoring APIs using the embedded report's instance|
 
-Note: __Power BI report authoring APIs__ and __phased embedding__ are not supported with powerbi-client-react.
+Note: __Phased Loading__ is not supported with powerbi-client-react.
 
 Note: To use this library in IE browser, use [react-app-polyfill](https://www.npmjs.com/package/react-app-polyfill) to add support for the incompatible features. Refer to the imports of [demo/index.tsx](demo\index.tsx).
 

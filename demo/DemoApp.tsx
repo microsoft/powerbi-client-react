@@ -103,8 +103,16 @@ function DemoApp (): JSX.Element {
 			return;
 		}
 
-		// Getting the first visual
-		const visual = visuals[0];
+		// Get first visible visual
+		const visual = visuals.find((v) => {
+			return v.layout.displayState?.mode === models.VisualContainerDisplayMode.Visible;
+		});
+
+		// No visible visual found
+		if (!visual) {
+			console.log('No visible visual available to delete');
+			return;
+		}
 
 		try {
 			
@@ -146,7 +154,7 @@ function DemoApp (): JSX.Element {
 
 	const header = 
 		<div className = "header">
-			<div className = "title">React wrapper demo app</div>
+			<div className = "title">Power BI React component demo</div>
 		</div>;
 
 	const footer = 

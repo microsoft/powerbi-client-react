@@ -17,7 +17,12 @@
 		"demo": "cd demo && npm run demo",
 		"lint": "eslint --fix src/**/*.{ts,tsx}"
 	},
-	"keywords": [],
+	"keywords": [
+		"microsoft",
+		"powerbi",
+		"embedded",
+		"react"
+	],
 	"license": "MIT",
 	"dependencies": {
 		"powerbi-client": "^2.11.0"

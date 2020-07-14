@@ -1,0 +1,30 @@
+{
+	"name": "powerbi-client-react-demo",
+	"version": "1.0.0",
+	"description": "Demo for usage of powerbi-client-react",
+	"scripts": {
+		"demo": "webpack-dev-server --content-base ./ --config ./webpack.config.js"
+	},
+	"license": "MIT",
+	"dependencies": {
+		"powerbi-client-react": "file:../powerbi-client-react-1.0.0.tgz",
+		"powerbi-report-authoring": "^1.0.2",
+		"react-app-polyfill": "^1.0.6"
+	},
+	"peerDependencies": {
+		"react": ">= 16.8"
+	},
+	"devDependencies": {
+		"@types/react": "^16.9.35",
+		"@types/react-dom": "^16.9.8",
+		"css-loader": "^3.5.3",
+		"react": "^16.13.1",
+		"react-dom": "^16.13.1",
+		"style-loader": "^1.2.1",
+		"ts-loader": "^7.0.5",
+		"typescript": "^3.9.3",
+		"webpack": "^4.43.0",
+		"webpack-cli": "^3.3.11",
+		"webpack-dev-server": "^3.11.0"
+	}
+}

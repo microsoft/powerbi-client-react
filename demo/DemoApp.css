@@ -1,0 +1,93 @@
+.report-style-class {
+	height: 69vh;
+	margin: 1% auto;
+	width: 60%;
+}
+
+body {
+	font-family: 'Segoe UI';
+	margin: 0;
+}
+
+.header {
+	background: #3476AE 0 0 no-repeat padding-box;
+	border: 1px solid #707070;
+	height: 55px;
+	left: 0;
+	top: 0;
+}
+
+.displayMessage {
+	color: #000000;
+	font: normal 22px/27px Segoe UI;
+	letter-spacing: 0;
+	margin-top: 1%;
+	opacity: 1;
+	text-align: center;
+}
+
+.hr {
+	border: 1px solid #E0E0E0;
+	opacity: 1;
+}
+
+.controls {
+	margin-top: 1%;
+	text-align: center;
+}
+
+.footer {
+	background: #EEF3F8 0 0 no-repeat padding-box;
+	bottom: 0;
+	height: 39px;
+	opacity: 1;
+	position: absolute;
+	width: 100%;
+}
+
+.footer-text {
+	font: Regular 16px/21px Segoe UI;
+	height: 21px;
+	letter-spacing: 0;
+	margin-top: 9px;
+	opacity: 1;
+	position: relative;
+	text-align: center;
+	width: 100%;
+}
+
+.footer-text > a {
+	color: #278CE2;
+	font: Regular 16px/21px Segoe UI;
+	letter-spacing: 0;
+	text-decoration: underline;
+}
+
+.title {
+	color: #FFFFFF;
+	font: Bold 22px/27px Segoe UI;
+	letter-spacing: 0;
+	margin: 13px;
+	margin-left: 36px;
+	opacity: 1;
+	text-align: left;
+}
+
+button {
+	background: #337AB7;
+	border: 0;
+	border-radius: 5px;
+	color: #FFFFFF;
+	font-size: medium;
+	height: 35px;
+	margin-right: 15px;
+	width: 150px;
+}
+
+button:onfocus {
+	outline: none;
+}
+
+iframe {
+	border: none;
+}

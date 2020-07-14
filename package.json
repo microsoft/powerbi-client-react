@@ -23,6 +23,10 @@
 		"embedded",
 		"react"
 	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/microsoft/powerbi-client-react.git"
+	},
 	"license": "MIT",
 	"dependencies": {
 		"powerbi-client": "^2.11.0"

@@ -37,3 +37,6 @@ npm run demo
 Open the address to view in the browser:
 
 http://localhost:8080/
+
+## Flow Diagram for the PowerBIEmbed Component:
+![Flow Diagram](https://github.com/microsoft/powerbi-client-react/raw/master/resources/react_wrapper_flow_diagram.png)

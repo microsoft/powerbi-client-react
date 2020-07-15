@@ -1,6 +1,6 @@
 {
 	"name": "powerbi-client-react",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "React wrapper for powerbi-client library",
 	"main": "dist/powerbi-client-react.js",
 	"types": "dist/powerbi-client-react.d.ts",

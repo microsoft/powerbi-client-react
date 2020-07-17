@@ -2,8 +2,20 @@
 // Licensed under the MIT License.
 
 import * as React from "react";
-import { service, factories, Report, Embed, Dashboard, Tile, Qna, IEmbedConfiguration, Visual } from 'powerbi-client';
-import { IQnaEmbedConfiguration, IEmbedSettings, IVisualEmbedConfiguration } from "embed";
+import {
+	service,
+	factories,
+	Report,
+	Embed,
+	Dashboard,
+	Tile,
+	Qna,
+	IEmbedConfiguration,
+	Visual,
+	IQnaEmbedConfiguration,
+	IEmbedSettings,
+	IVisualEmbedConfiguration,
+} from 'powerbi-client';
 import { stringifyMap } from './utils';
 
 /**

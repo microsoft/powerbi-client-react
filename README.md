@@ -61,15 +61,8 @@ Note: To embed the report after bootstrap, update the props (with atleast access
 ### Demo
 
 A React application that embeds a sample report using the _PowerBIEmbed_ component.<br/>
-It demonstrates the complete flow from bootstrapping the report, to embedding and updating the embedded report.
-
-Pre-requisite commands to be run only once:
-
-```
-npm install
-npm run build
-npm pack
-```
+It demonstrates the complete flow from bootstrapping the report, to embedding and updating the embedded report.<br/>
+It also demonstrates the usage of powerbi report authoring library by deleting a visual from report on click of "Delete a Visual" button.
 
 To run the demo on localhost, run the following commands:
 
@@ -79,10 +72,6 @@ npm run demo
 ```
 
 Redirect to http://localhost:8080/ to view in the browser.
-
-Note: _powerbi-client-react_ is installed in demo app via .tgz file (output of `npm pack`). 
-This is required (only in demo app) to work with the _powerbi-report-authoring_ package.
-In your React App, just add  _[powerbi-report-authoring](https://www.npmjs.com/package/powerbi-report-authoring)_ as NPM dependencies.
 
 ### Usage
 |Use case|Details|

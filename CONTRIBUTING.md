@@ -24,13 +24,14 @@ Or if using VScode: `Ctrl + Shift + B`
 ```
 npm test
 ```
-By default the tests run using Headless Chrome
+By default the tests run using PhantomJS browser
 
 The build and tests use webpack to compile all the source modules into bundled module that can be executed in the browser.
 
 ## Running the demo
 
 ```
+npm run install:demo
 npm run demo
 ```
 

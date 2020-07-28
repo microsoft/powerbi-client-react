@@ -73,6 +73,37 @@ npm run demo
 
 Redirect to http://localhost:8080/ to view in the browser.
 
+### Demo
+
+A React application that embeds a sample report using the _PowerBIEmbed_ component.<br/>
+It demonstrates the complete flow from bootstrapping the report, to embedding and updating the embedded report.<br/>
+It also demonstrates the usage of powerbi report authoring library by deleting a visual from report on click of "Delete a Visual" button.
+
+To run the demo on localhost, run the following commands:
+
+```
+npm run install:demo
+npm run demo
+```
+
+Redirect to http://localhost:8080/ to view in the browser.
+
+**Docker Demo Example**
+
+Change directory into /demo/docker folder 
+ 
+Copy and paste the code below into shell/terminal
+```
+docker build . -t embedded-react-powerbi:0.1.0 && docker run -p 80:80 -d --name powerbi-react embedded-react-powerbi:0.1.0
+```
+
+Open local browser and navigate to http://localhost:80
+
+To stop the container run 
+```
+docker stop powerbi-react
+```
+
 ### Usage
 |Use case|Details|
 |:------|:------|

@@ -7,7 +7,7 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"powerbi-client-react": "^1.0",
+		"powerbi-client-react": "^1.1",
 		"powerbi-report-authoring": "^1.0.2",
 		"react-app-polyfill": "^1.0.6"
 	},

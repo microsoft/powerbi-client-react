@@ -28,15 +28,19 @@ function DemoApp (): JSX.Element {
 
 	// Map of event handlers to be applied to the embedding report
 	const eventHandlersMap = new Map([
-		['loaded', function () {console.log('Report has loaded');}],
+		['loaded', function () {
+			console.log('Report has loaded');
+		}],
 		['rendered', function () {
 			console.log('Report has rendered');
 			
 			// Update display message
 			setMessage('The report is rendered')
 		}],
-		['error', function (event: service.ICustomEvent<any>) { 
-			console.error(event.detail); 
+		['error', function (event?: service.ICustomEvent<any>) { 
+			if (event) {
+				console.error(event.detail);
+			}
 		}]
 	]);
 	
@@ -80,7 +84,7 @@ function DemoApp (): JSX.Element {
 		});
 	};
 
-	// Delete the first visual using powerbi-report-authoring
+	// Delete the first visual using powerbi-report-authoring library
 	const deleteVisual = async () => {
 
 		if (!report) {

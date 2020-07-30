@@ -348,7 +348,7 @@ describe('tests of PowerBIEmbed', function () {
 			expect(mockPowerBIService.reset).toHaveBeenCalled();
 		});
 
-		it("new report's url in updated props", () => {
+		it("embeds when report's embedUrl is updated in new props", () => {
 			let config = {
 				type: 'report',
 				id: 'fakeId',
@@ -365,6 +365,7 @@ describe('tests of PowerBIEmbed', function () {
 					/>, container);
 			});
 
+			// Embed URL of different report
 			config.embedUrl = 'newFakeUrl';
 
 			act(() => {
@@ -377,6 +378,98 @@ describe('tests of PowerBIEmbed', function () {
 			});
 
 			expect(mockPowerBIService.embed).toHaveBeenCalled();
+		});
+
+		it('loads the report when phasedEmbedding props is true', () => {
+
+			// Arrange
+			const config = {
+				type: 'report',
+				id: 'fakeId',
+				embedUrl: 'fakeUrl',
+				accessToken: 'fakeToken'
+			};
+	
+			// Act
+			act(() => {
+	
+				ReactDOM.render(
+					<PowerBIEmbed 
+						embedConfig = { config }
+						service = { mockPowerBIService }
+						phasedEmbedding = { true }
+					/>, 
+					container
+				);
+			});
+
+			// Assert
+			// service.load() is invoked once
+			expect(mockPowerBIService.load).toHaveBeenCalledTimes(1);
+
+			// service.embed() is not invoked
+			expect(mockPowerBIService.embed).not.toHaveBeenCalled();
+		});
+
+		it('embeds the report when phasedEmbedding props is null', () => {
+
+			// Arrange
+			const config = {
+				type: 'report',
+				id: 'fakeId',
+				embedUrl: 'fakeUrl',
+				accessToken: 'fakeToken'
+			};
+	
+			// Act
+			act(() => {
+	
+				ReactDOM.render(
+					<PowerBIEmbed 
+						embedConfig = { config }
+						service = { mockPowerBIService }
+						phasedEmbedding = { null }
+					/>, 
+					container
+				);
+			});
+
+			// Assert
+			// service.load() is not invoked
+			expect(mockPowerBIService.load).not.toHaveBeenCalled();
+
+			// service.embed() is invoked once
+			expect(mockPowerBIService.embed).toHaveBeenCalledTimes(1);
+		});
+
+		it('embeds the report when phasedEmbedding props is not provided', () => {
+
+			// Arrange
+			const config = {
+				type: 'report',
+				id: 'fakeId',
+				embedUrl: 'fakeUrl',
+				accessToken: 'fakeToken'
+			};
+	
+			// Act
+			act(() => {
+	
+				ReactDOM.render(
+					<PowerBIEmbed 
+						embedConfig = { config }
+						service = { mockPowerBIService }
+					/>, 
+					container
+				);
+			});
+
+			// Assert
+			// service.load() is not invoked
+			expect(mockPowerBIService.load).not.toHaveBeenCalled();
+
+			// service.embed() is invoked once
+			expect(mockPowerBIService.embed).toHaveBeenCalledTimes(1);
 		});
 	});
 

@@ -4,5 +4,6 @@
 export {
 	PowerBIEmbed,
 	EmbedProps,
-	EmbedType
+	EmbedType,
+	EventHandler
 } from './PowerBIEmbed'

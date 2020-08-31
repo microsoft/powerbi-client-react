@@ -78,7 +78,7 @@ Redirect to http://localhost:8080/ to view in the browser.
 |Use case|Details|
 |:------|:------|
 |Embed Power BI|To embed your powerbi artifact, pass the component with atleast _type_, _embedUrl_ and _accessToken_ in _embedConfig_ prop.|
-|Get reference to the embedded object|Pass a callback method which accepts the embedded object as parameter to the _getEmbed_ of props.<br/>Refer to the _getEmbed_ prop in [Quick Start](#quick-start).|
+|Get reference to the embedded object|Pass a callback method which accepts the embedded object as parameter to the _getEmbeddedComponent_ of props.<br/>Refer to the _getEmbeddedComponent_ prop in [Quick Start](#quick-start).|
 |Apply style class|Pass the name(s) of style classes to be added to the embed container div to the _cssClassName_ props.|
 |Set event handlers|Pass a map object of event name (string) and event handler (function) to the _eventHandlers_ prop. <br/>__Key__: Event name <br/>__Value__: Event handler method to be triggered<br/>Event handler method takes 2 optional params:<br/>First parameter: Event<br/>Second parameter: Reference to the embedded entity|
 |Reset event handlers|To reset event handler for an event, set the event handler's value as `null` in the _eventHandlers_ map of props.|
@@ -100,7 +100,7 @@ interface EmbedProps {
 	embedConfig: IEmbedConfiguration | IQnaEmbedConfiguration | IVisualEmbedConfiguration
 
 	// Callback method to get the embedded PowerBI entity object (optional)
-	getEmbed?: { (embeddedComponent: Embed): void }
+	getEmbeddedComponent?: { (embeddedComponent: Embed): void }
 
 	// Map of pair of event name and its handler method to be triggered on the event (optional)
 	eventHandlers?: Map<string, EventHandler>

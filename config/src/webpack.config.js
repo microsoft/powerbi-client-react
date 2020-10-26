@@ -13,7 +13,8 @@ module.exports = {
 	},
 	externals: [
 		'react',
-		'powerbi-client'
+		'powerbi-client',
+		'lodash.isequal'
 	],
 	module: {
 		rules: [

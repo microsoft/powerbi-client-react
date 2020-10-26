@@ -16,6 +16,7 @@ import {
 	IEmbedSettings,
 	IVisualEmbedConfiguration,
 } from 'powerbi-client';
+import isEqual from 'lodash.isequal';
 import { stringifyMap } from './utils';
 
 /**
@@ -131,8 +132,10 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 			this.setEventHandlers(this.embed, this.props.eventHandlers);
 		}
 
-		// Update settings in embedConfig of props
-		this.updateSettings();
+		// Allow settings update only when settings object in embedConfig of current and previous props is different
+		if (!isEqual(this.props.embedConfig.settings, prevProps.embedConfig.settings)) {
+			this.updateSettings();
+		}
 	};
 
 	componentWillUnmount(): void {

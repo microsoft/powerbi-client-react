@@ -82,11 +82,13 @@ Redirect to http://localhost:8080/ to view in the browser.
 |Apply style class|Pass the name(s) of style classes to be added to the embed container div to the _cssClassName_ props.|
 |Set event handlers|Pass a map object of event name (string) and event handler (function) to the _eventHandlers_ prop. <br/>__Key__: Event name <br/>__Value__: Event handler method to be triggered<br/>Event handler method takes 2 optional params:<br/>First parameter: Event<br/>Second parameter: Reference to the embedded entity|
 |Reset event handlers|To reset event handler for an event, set the event handler's value as `null` in the _eventHandlers_ map of props.|
-|Set new accessToken|To set new accessToken in the same embedded powerbi artifact, pass the updated _accessToken_ in _embedConfig_ of props.<br/>Example scenario: _Current token has expired_.|
+|Set new accessToken|To set new accessToken in the same embedded powerbi artifact, pass the updated _accessToken_ in _embedConfig_ of props. <br/>Reload manually with report.reload() after providing new token if the current token in report has already expired<br/>Example scenario: _Current token has expired_.|
 |Update settings (Report type only)|To update the report settings, update the _embedConfig.settings_ property of props.<br/>Refer to the _embedConfig.settings_ prop in [Quick Start](#quick-start).<br/>__Note__: Update the settings only by updating embedConfig prop|
 |Bootstrap Power BI|To [bootstrap your powerbi entity](https://aka.ms/PbieBootstrap), pass the props to the component without _accessToken_ in _embedConfig_.<br/>__Note__: _embedConfig_ of props should atleast contain __type__ of the powerbi entity being embedded. <br/>Available types: "report", "dashboard", "tile", "visual" and "qna".<br/>Refer to _How to bootstrap a report_ section in [Quick Start](#quick-start).|
 |Using with PowerBI Report Authoring|1. Install [powerbi-report-authoring](https://www.npmjs.com/package/powerbi-report-authoring) as npm dependency.<br>2. Use the report authoring APIs using the embedded report's instance|
-|Phased embedding|Set phasedEmbedding prop's value as `true` <br/> Refer to [Phased embedding docs](https://github.com/microsoft/PowerBI-JavaScript/wiki/Phased-Embedding).|
+|Phased embedding (Report type only)|Set phasedEmbedding prop's value as `true` <br/> Refer to [Phased embedding docs](https://github.com/microsoft/PowerBI-JavaScript/wiki/Phased-Embedding).|
+|Apply Filters (Report type only)|1. To apply updated filters, update filters in _embedConfig_ props.<br/>2. To remove the applied filters, update the _embedConfig_ prop with the filters removed or set as undefined/null.|
+|Set Page (Report type only)|To set a page when embedding a report or on an embedded report, provide pageName field in the _embedConfig_. 
 
 __Note__: To use this library in IE browser, use [react-app-polyfill](https://www.npmjs.com/package/react-app-polyfill) to add support for the incompatible features. Refer to the imports of [demo/index.tsx](https://github.com/microsoft/powerbi-client-react/blob/master/demo/index.tsx).
 

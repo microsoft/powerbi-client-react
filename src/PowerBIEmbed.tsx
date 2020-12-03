@@ -32,20 +32,20 @@ export type EventHandler = {
 export interface EmbedProps {
 
 	// Configuration for embedding the PowerBI entity
-	embedConfig: IEmbedConfiguration | IQnaEmbedConfiguration | IVisualEmbedConfiguration;	
+	embedConfig: IEmbedConfiguration | IQnaEmbedConfiguration | IVisualEmbedConfiguration;
 
 	// Callback method to get the embedded PowerBI entity object (Optional)
 	getEmbeddedComponent?: { (embeddedComponent: Embed): void };
 
 	// Map of pair of event name and its handler method to be triggered on the event (Optional)
 	eventHandlers?: Map<string, EventHandler>;
-	
+
 	// CSS class to be set on the embedding container (Optional)
 	cssClassName?: string;
 
 	// Phased embedding flag (Optional)
 	phasedEmbedding?: boolean;
-	
+
 	// Provide a custom implementation of PowerBI service (Optional)
 	service?: service.Service;
 }
@@ -136,6 +136,45 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 		if (!isEqual(this.props.embedConfig.settings, prevProps.embedConfig.settings)) {
 			this.updateSettings();
 		}
+
+		// Update pageName and filters for a report
+		if (this.props.embedConfig.type === EmbedType.Report) {
+
+			// Typecasting to IEmbedConfiguration as IQnAEmbedConfiguration does not have pageName
+			const embedConfig = this.props.embedConfig as IEmbedConfiguration;
+			const prevEmbedConfig = prevProps.embedConfig as IEmbedConfiguration;
+
+			// Set new page if available and different from the previous page
+			if (embedConfig.pageName && embedConfig.pageName !== prevEmbedConfig.pageName) {
+
+				// Upcast to Report and call setPage
+				(this.embed as Report).setPage(embedConfig.pageName)
+					.catch((error) => {
+						console.error(error);
+					});
+
+			}
+
+			// Set filters on the embedded report if available and different from the previous filter
+			if (embedConfig.filters && !isEqual(embedConfig.filters, prevEmbedConfig.filters)) {
+
+				// Upcast to Report and call setFilters
+				(this.embed as Report).setFilters(embedConfig.filters)
+					.catch((error) => {
+						console.error(error);
+					});
+			}
+
+			// Remove filters on the embedded report
+			else if (!embedConfig.filters && prevEmbedConfig.filters) {
+
+				// Upcast to Report and call removeFilters
+				(this.embed as Report).removeFilters()
+					.catch((error) => {
+						console.error(error);
+					});
+			}
+		}
 	};
 
 	componentWillUnmount(): void {
@@ -155,19 +194,22 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 	};
 
 	/**
-	 * Embed or load the powerbi entity
+	 * Embed the powerbi entity (Load for phased embedding)
 	 */
 	private embedEntity(): void {
 		// Check if the HTML container is rendered and available
 		if (!this.containerRef.current) {
 			return;
 		}
-		
-		// Load when props.phasedEmbedding is true, embed otherwise
-		if (this.props.phasedEmbedding) {
+
+		// Load when props.phasedEmbedding is true and embed type is report, embed otherwise
+		if (this.props.phasedEmbedding && this.props.embedConfig.type === EmbedType.Report) {
 			this.embed = this.powerbi.load(this.containerRef.current, this.props.embedConfig);
 		}
 		else {
+			if (this.props.phasedEmbedding) {
+				console.error(`Phased embedding is not supported for type ${this.props.embedConfig.type}`)
+			}
 			this.embed = this.powerbi.embed(this.containerRef.current, this.props.embedConfig);
 		}
 	}
@@ -219,12 +261,12 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 	 * @returns void
 	 */
 	private setEventHandlers(
-		embed: Embed, 
+		embed: Embed,
 		eventHandlerMap: Map<string, EventHandler>
 	): void {
 		// Get string representation of eventHandlerMap
 		const eventHandlerMapString = stringifyMap(this.props.eventHandlers);
-		
+
 		// Check if event handler map changed
 		if (this.prevEventHandlerMapString === eventHandlerMapString) {
 			return;
@@ -311,7 +353,7 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 	private updateSettings(): void {
 		if (!this.embed || !this.props.embedConfig.settings) {
 			return;
-		} 
+		}
 
 		switch (this.props.embedConfig.type) {
 			case EmbedType.Report: {

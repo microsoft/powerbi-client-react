@@ -3,12 +3,12 @@
 	"version": "1.0.0",
 	"description": "Demo for usage of powerbi-client-react",
 	"scripts": {
-		"demo": "webpack-dev-server --content-base ./ --config ./webpack.config.js"
+		"demo": "webpack-dev-server --content-base ./ --open"
 	},
 	"license": "MIT",
 	"dependencies": {
-		"powerbi-client-react": "^1.1",
-		"powerbi-report-authoring": "^1.0.2",
+		"powerbi-client-react": "^1.3.0",
+		"powerbi-report-authoring": "^1.1",
 		"react-app-polyfill": "^1.0.6"
 	},
 	"peerDependencies": {

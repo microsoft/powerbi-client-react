@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState } from 'react';
-import { models, Report, Embed, IEmbedConfiguration, service, Page } from 'powerbi-client';
+import { models, Report, Embed, service, Page } from 'powerbi-client';
 import { PowerBIEmbed } from 'powerbi-client-react';
 import 'powerbi-report-authoring';
 import './DemoApp.css';
@@ -18,7 +18,7 @@ function DemoApp (): JSX.Element {
 
 	// Report config useState hook
 	// Values for properties like embedUrl, accessToken and settings will be set on click of buttons below
-	const [sampleReportConfig, setReportConfig] = useState<IEmbedConfiguration>({
+	const [sampleReportConfig, setReportConfig] = useState<models.IReportEmbedConfiguration>({
 		type: 'report',
 		embedUrl: undefined,
 		tokenType: models.TokenType.Embed,

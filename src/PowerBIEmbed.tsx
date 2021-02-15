@@ -10,11 +10,14 @@ import {
 	Dashboard,
 	Tile,
 	Qna,
-	IEmbedConfiguration,
 	Visual,
-	IQnaEmbedConfiguration,
 	IEmbedSettings,
+	IEmbedConfiguration,
+	IQnaEmbedConfiguration,
 	IVisualEmbedConfiguration,
+	IReportEmbedConfiguration,
+	IDashboardEmbedConfiguration,
+	ITileEmbedConfiguration,
 } from 'powerbi-client';
 import isEqual from 'lodash.isequal';
 import { stringifyMap } from './utils';
@@ -31,8 +34,14 @@ export type EventHandler = {
  */
 export interface EmbedProps {
 
-	// Configuration for embedding the PowerBI entity
-	embedConfig: IEmbedConfiguration | IQnaEmbedConfiguration | IVisualEmbedConfiguration;
+	// Configuration for embedding the PowerBI entity (Required)
+	embedConfig:
+		| IReportEmbedConfiguration
+		| IDashboardEmbedConfiguration
+		| ITileEmbedConfiguration
+		| IQnaEmbedConfiguration
+		| IVisualEmbedConfiguration
+		| IEmbedConfiguration;
 
 	// Callback method to get the embedded PowerBI entity object (Optional)
 	getEmbeddedComponent?: { (embeddedComponent: Embed): void };
@@ -140,9 +149,9 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 		// Update pageName and filters for a report
 		if (this.props.embedConfig.type === EmbedType.Report) {
 
-			// Typecasting to IEmbedConfiguration as IQnAEmbedConfiguration does not have pageName
-			const embedConfig = this.props.embedConfig as IEmbedConfiguration;
-			const prevEmbedConfig = prevProps.embedConfig as IEmbedConfiguration;
+			// Typecasting to IReportEmbedConfiguration
+			const embedConfig = this.props.embedConfig as IReportEmbedConfiguration;
+			const prevEmbedConfig = prevProps.embedConfig as IReportEmbedConfiguration;
 
 			// Set new page if available and different from the previous page
 			if (embedConfig.pageName && embedConfig.pageName !== prevEmbedConfig.pageName) {

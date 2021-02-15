@@ -99,7 +99,13 @@ __Note__: To use this library in IE browser, use [react-app-polyfill](https://ww
 interface EmbedProps {
 
 	// Configuration for embedding the PowerBI entity (required)
-	embedConfig: IEmbedConfiguration | IQnaEmbedConfiguration | IVisualEmbedConfiguration
+	embedConfig:
+		| IReportEmbedConfiguration
+		| IDashboardEmbedConfiguration
+		| ITileEmbedConfiguration
+		| IQnaEmbedConfiguration
+		| IVisualEmbedConfiguration
+		| IEmbedConfiguration
 
 	// Callback method to get the embedded PowerBI entity object (optional)
 	getEmbeddedComponent?: { (embeddedComponent: Embed): void }

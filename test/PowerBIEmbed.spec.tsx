@@ -5,11 +5,26 @@ import 'react-app-polyfill/ie11';	// For PhantomJS compatibility
 import 'react-app-polyfill/stable';	// For PhantomJS compatibility
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { act, isElement } from 'react-dom/test-utils';
-import { Report, Dashboard, service, factories, IEmbedSettings } from 'powerbi-client';
+import {
+  Dashboard,
+  factories,
+  IEmbedSettings,
+  Report,
+  service,
+} from 'powerbi-client';
+import {
+  FilterType,
+  IBasicFilter,
+} from 'powerbi-models';
+import {
+  act,
+  isElement,
+} from 'react-dom/test-utils';
 import { PowerBIEmbed } from '../src/PowerBIEmbed';
-import { mockPowerBIService, mockedMethods } from "./mockService";
-import { IBasicFilter, FilterType } from 'powerbi-models';
+import {
+  mockedMethods,
+  mockPowerBIService,
+} from './mockService';
 
 // Use this function to render powerbi entity with only config
 function renderReport(container: HTMLDivElement, config) {
@@ -134,6 +149,24 @@ describe('tests of PowerBIEmbed', function () {
 			// Assert
 			expect(testReport).not.toBe(undefined);
 			expect(testReport instanceof Dashboard).toBe(true);
+		});
+
+		it('gets the created report object', () => {
+
+			// Arrange
+			let testReport = undefined;
+
+			// Act
+			testReport = renderReport(container, {
+				type: 'create',
+				datasetId: '1234',
+				accessToken: 'token',
+				embedUrl: 'https://embed'
+			});
+
+			// Assert
+			expect(testReport).not.toBe(undefined);
+			expect(testReport.constructor.name).toBe('Create'); // Couldn't figure out how to import Create, so hack it is!
 		});
 	});
 
@@ -312,7 +345,7 @@ describe('tests of PowerBIEmbed', function () {
 
 	describe('test powerbi updating report filters', () => {
 		it('applies the updated filter', () => {
-			
+
 			// Arrange
 			let testReport: Report = undefined;
 			const config = {
@@ -343,7 +376,7 @@ describe('tests of PowerBIEmbed', function () {
 		});
 
 		it('does not apply filter if same filter is provided in the new config', () => {
-			
+
 			// Arrange
 			let testReport: Report = undefined;
 			const oldConfig = {
@@ -363,7 +396,7 @@ describe('tests of PowerBIEmbed', function () {
 
 			spyOn(testReport, 'setFilters').and.callThrough();
 			spyOn(testReport, 'removeFilters').and.callThrough();
-			
+
 			// Act
 			act(() => {
 				ReactDOM.render(
@@ -400,7 +433,7 @@ describe('tests of PowerBIEmbed', function () {
 			};
 
 			testReport = renderReport(container, oldConfig);
-			
+
 			spyOn(testReport, 'removeFilters').and.callThrough();
 
 			// Act
@@ -432,7 +465,7 @@ describe('tests of PowerBIEmbed', function () {
 				accessToken: 'fakeToken',
 				pageName: 'fakePage',
 			};
-			
+
 			testReport = renderReport(container, { type: 'report' });
 			spyOn(testReport, 'setPage').and.callThrough();
 
@@ -446,7 +479,7 @@ describe('tests of PowerBIEmbed', function () {
 						}}
 					/>, container);
 			});
-			
+
 			// Assert
 			expect(testReport.setPage).toHaveBeenCalledTimes(1);
 			expect(testReport.setPage).toHaveBeenCalledWith(config.pageName);
@@ -465,7 +498,7 @@ describe('tests of PowerBIEmbed', function () {
 
 			testReport = renderReport(container, { type: 'report' });
 			spyOn(testReport, 'setPage').and.callThrough();
-			
+
 			// Act
 			act(() => {
 				ReactDOM.render(
@@ -500,7 +533,7 @@ describe('tests of PowerBIEmbed', function () {
 			testReport = renderReport(container, oldConfig);
 
 			spyOn(testReport, 'setPage').and.callThrough();
-			
+
 			// Act
 			act(() => {
 				ReactDOM.render(

@@ -1,25 +1,26 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as React from "react";
-import {
-	service,
-	factories,
-	Report,
-	Embed,
-	Dashboard,
-	Tile,
-	Qna,
-	Visual,
-	IEmbedSettings,
-	IEmbedConfiguration,
-	IQnaEmbedConfiguration,
-	IVisualEmbedConfiguration,
-	IReportEmbedConfiguration,
-	IDashboardEmbedConfiguration,
-	ITileEmbedConfiguration,
-} from 'powerbi-client';
+import * as React from 'react';
 import isEqual from 'lodash.isequal';
+import {
+  Dashboard,
+  Embed,
+  factories,
+  IDashboardEmbedConfiguration,
+  IEmbedConfiguration,
+  IEmbedSettings,
+  IQnaEmbedConfiguration,
+  IReportEmbedConfiguration,
+  ITileEmbedConfiguration,
+  IVisualEmbedConfiguration,
+  models,
+  Qna,
+  Report,
+  service,
+  Tile,
+  Visual,
+} from 'powerbi-client';
 import { stringifyMap } from './utils';
 
 /**
@@ -41,7 +42,8 @@ export interface EmbedProps {
 		| ITileEmbedConfiguration
 		| IQnaEmbedConfiguration
 		| IVisualEmbedConfiguration
-		| IEmbedConfiguration;
+		| IEmbedConfiguration
+		| models.IReportCreateConfiguration;
 
 	// Callback method to get the embedded PowerBI entity object (Optional)
 	getEmbeddedComponent?: { (embeddedComponent: Embed): void };
@@ -64,7 +66,8 @@ export enum EmbedType {
 	Dashboard = 'dashboard',
 	Tile = 'tile',
 	Qna = 'qna',
-	Visual = 'visual'
+	Visual = 'visual',
+	Create = 'create',
 }
 
 /**
@@ -121,6 +124,10 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 			if (this.props.embedConfig.accessToken && this.props.embedConfig.embedUrl) {
 				this.embedEntity();
 			}
+			else if (this.props.embedConfig.type === EmbedType.Create) {
+				this.embed = this.powerbi.createReport(this.containerRef.current,
+					this.props.embedConfig as models.IReportCreateConfiguration);
+			}
 			else {
 				this.embed = this.powerbi.bootstrap(this.containerRef.current, this.props.embedConfig);
 			}
@@ -147,7 +154,7 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 		}
 
 		// Update pageName and filters for a report
-		if (this.props.embedConfig.type === EmbedType.Report) {
+		if (this.props.embedConfig.type === EmbedType.Report || this.props.embedConfig.type === EmbedType.Create) {
 
 			// Typecasting to IReportEmbedConfiguration
 			const embedConfig = this.props.embedConfig as IReportEmbedConfiguration;
@@ -168,7 +175,7 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 			if (embedConfig.filters && !isEqual(embedConfig.filters, prevEmbedConfig.filters)) {
 
 				// Upcast to Report and call setFilters
-				(this.embed as Report).setFilters(embedConfig.filters)
+				(this.embed as Report).setFilters(embedConfig.filters as models.ReportLevelFilters[])
 					.catch((error) => {
 						console.error(error);
 					});
@@ -217,16 +224,23 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 		}
 		else {
 			if (this.props.phasedEmbedding) {
-				console.error(`Phased embedding is not supported for type ${this.props.embedConfig.type}`)
+				console.error(`Phased embedding is not supported for type ${this.props.embedConfig.type}`);
 			}
-			this.embed = this.powerbi.embed(this.containerRef.current, this.props.embedConfig);
+
+			if (this.props.embedConfig.type === EmbedType.Create) {
+				this.embed = this.powerbi.createReport(this.containerRef.current,
+					this.props.embedConfig as models.IReportCreateConfiguration);
+			}
+			else {
+				this.embed = this.powerbi.embed(this.containerRef.current, this.props.embedConfig);
+			}
 		}
 	}
 
 	/**
-	 * When component updates, choose to _embed_ the powerbi entity or _update the accessToken_ in the embedded entity 
+	 * When component updates, choose to _embed_ the powerbi entity or _update the accessToken_ in the embedded entity
 	 * or do nothing if the embedUrl and accessToken did not update in the new props
-	 * 
+	 *
 	 * @param prevProps EmbedProps
 	 * @returns void
 	 */
@@ -264,7 +278,7 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 
 	/**
 	 * Sets all event handlers from the props on the embedded entity
-	 * 
+	 *
 	 * @param embed Embedded object
 	 * @param eventHandlers Array of eventhandlers to be set on embedded entity
 	 * @returns void
@@ -345,7 +359,7 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 
 	/**
 	 * Returns the embedded object via _getEmbed_ callback method provided in props
-	 * 
+	 *
 	 * @returns void
 	 */
 	private invokeGetEmbedCallback(): void {
@@ -356,7 +370,7 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 
 	/**
 	 * Update settings from props of the embedded artifact
-	 * 
+	 *
 	 * @returns void
 	 */
 	private updateSettings(): void {

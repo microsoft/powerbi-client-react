@@ -306,6 +306,7 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 		// Append entity specific events
 		switch (entityType) {
 			case EmbedType.Report:
+			case EmbedType.Create:
 				allowedEvents = [...allowedEvents, ...Report.allowedEvents]
 				break;
 			case EmbedType.Dashboard:

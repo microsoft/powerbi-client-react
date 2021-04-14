@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as React from "react";
+import * as React from 'react';
 import {
 	service,
 	factories,
@@ -19,6 +19,7 @@ import {
 	IDashboardEmbedConfiguration,
 	ITileEmbedConfiguration,
 } from 'powerbi-client';
+import { ReportLevelFilters } from 'powerbi-models';
 import isEqual from 'lodash.isequal';
 import { stringifyMap } from './utils';
 
@@ -151,6 +152,7 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 			try {
 				// Typecasting to IReportEmbedConfiguration
 				const embedConfig = this.props.embedConfig as IReportEmbedConfiguration;
+				const filters = embedConfig.filters as ReportLevelFilters[];
 				const prevEmbedConfig = prevProps.embedConfig as IReportEmbedConfiguration;
 
 				// Set new page if available and different from the previous page
@@ -160,13 +162,13 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 				}
 
 				// Set filters on the embedded report if available and different from the previous filter
-				if (embedConfig.filters && !isEqual(embedConfig.filters, prevEmbedConfig.filters)) {
+				if (filters && !isEqual(filters, prevEmbedConfig.filters)) {
 					// Upcast to Report and call setFilters
-					await (this.embed as Report).setFilters(embedConfig.filters)
+					await (this.embed as Report).setFilters(filters);
 				}
 
-				// Remove filters on the embedded report
-				else if (!embedConfig.filters && prevEmbedConfig.filters) {
+				// Remove filters on the embedded report, if previously applied
+				else if (!filters && prevEmbedConfig.filters) {
 					// Upcast to Report and call removeFilters
 					await (this.embed as Report).removeFilters();
 				}

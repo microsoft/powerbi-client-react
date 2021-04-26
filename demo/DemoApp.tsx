@@ -14,7 +14,7 @@ function DemoApp (): JSX.Element {
 	const [report, setReport] = useState<Report>();
 
 	// API end-point url to get embed config for a sample report
-	const sampleReportUrl = 'https://aka.ms/sampleReportEmbedConfig';
+	const sampleReportUrl = 'https://playgroundbe-bck-1.azurewebsites.net/Reports/SampleReport';
 
 	// Report config useState hook
 	// Values for properties like embedUrl, accessToken and settings will be set on click of buttons below

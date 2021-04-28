@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as React from "react";
+import * as React from 'react';
 import {
 	service,
 	factories,
@@ -19,6 +19,7 @@ import {
 	IDashboardEmbedConfiguration,
 	ITileEmbedConfiguration,
 } from 'powerbi-client';
+import { ReportLevelFilters } from 'powerbi-models';
 import isEqual from 'lodash.isequal';
 import { stringifyMap } from './utils';
 
@@ -132,7 +133,7 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 		}
 	};
 
-	componentDidUpdate(prevProps: EmbedProps): void {
+	async componentDidUpdate(prevProps: EmbedProps): Promise<void> {
 
 		this.embedOrUpdateAccessToken(prevProps);
 
@@ -143,45 +144,36 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 
 		// Allow settings update only when settings object in embedConfig of current and previous props is different
 		if (!isEqual(this.props.embedConfig.settings, prevProps.embedConfig.settings)) {
-			this.updateSettings();
+			await this.updateSettings();
 		}
 
 		// Update pageName and filters for a report
 		if (this.props.embedConfig.type === EmbedType.Report) {
+			try {
+				// Typecasting to IReportEmbedConfiguration
+				const embedConfig = this.props.embedConfig as IReportEmbedConfiguration;
+				const filters = embedConfig.filters as ReportLevelFilters[];
+				const prevEmbedConfig = prevProps.embedConfig as IReportEmbedConfiguration;
 
-			// Typecasting to IReportEmbedConfiguration
-			const embedConfig = this.props.embedConfig as IReportEmbedConfiguration;
-			const prevEmbedConfig = prevProps.embedConfig as IReportEmbedConfiguration;
+				// Set new page if available and different from the previous page
+				if (embedConfig.pageName && embedConfig.pageName !== prevEmbedConfig.pageName) {
+					// Upcast to Report and call setPage
+					await (this.embed as Report).setPage(embedConfig.pageName);
+				}
 
-			// Set new page if available and different from the previous page
-			if (embedConfig.pageName && embedConfig.pageName !== prevEmbedConfig.pageName) {
+				// Set filters on the embedded report if available and different from the previous filter
+				if (filters && !isEqual(filters, prevEmbedConfig.filters)) {
+					// Upcast to Report and call setFilters
+					await (this.embed as Report).setFilters(filters);
+				}
 
-				// Upcast to Report and call setPage
-				(this.embed as Report).setPage(embedConfig.pageName)
-					.catch((error) => {
-						console.error(error);
-					});
-
-			}
-
-			// Set filters on the embedded report if available and different from the previous filter
-			if (embedConfig.filters && !isEqual(embedConfig.filters, prevEmbedConfig.filters)) {
-
-				// Upcast to Report and call setFilters
-				(this.embed as Report).setFilters(embedConfig.filters)
-					.catch((error) => {
-						console.error(error);
-					});
-			}
-
-			// Remove filters on the embedded report
-			else if (!embedConfig.filters && prevEmbedConfig.filters) {
-
-				// Upcast to Report and call removeFilters
-				(this.embed as Report).removeFilters()
-					.catch((error) => {
-						console.error(error);
-					});
+				// Remove filters on the embedded report, if previously applied
+				else if (!filters && prevEmbedConfig.filters) {
+					// Upcast to Report and call removeFilters
+					await (this.embed as Report).removeFilters();
+				}
+			} catch (err) {
+				console.error(err);
 			}
 		}
 	};
@@ -359,22 +351,23 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 	 * 
 	 * @returns void
 	 */
-	private updateSettings(): void {
+	private async updateSettings(): Promise<void> {
 		if (!this.embed || !this.props.embedConfig.settings) {
 			return;
 		}
 
 		switch (this.props.embedConfig.type) {
 			case EmbedType.Report: {
-
 				// Typecasted to IEmbedSettings as props.embedConfig.settings can be ISettings via IQnaEmbedConfiguration
 				const settings = this.props.embedConfig.settings as IEmbedSettings;
 
-				// Upcast to Report and call updateSettings
-				(this.embed as Report).updateSettings(settings)
-					.catch((error: any) => {
-						console.error(`Error in method updateSettings: ${error}`);
-					});
+				try {
+					// Upcast to Report and call updateSettings
+					await (this.embed as Report).updateSettings(settings);
+				} catch (error) {
+					console.error(`Error in method updateSettings: ${error}`);
+				}
+
 				break;
 			}
 			case EmbedType.Dashboard:

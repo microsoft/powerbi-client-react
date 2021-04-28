@@ -6,10 +6,10 @@ import 'react-app-polyfill/stable';	// For PhantomJS compatibility
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { act, isElement } from 'react-dom/test-utils';
-import { Report, Dashboard, service, factories, IEmbedSettings } from 'powerbi-client';
+import { Report, Dashboard, service, factories, IEmbedSettings, IReportEmbedConfiguration } from 'powerbi-client';
 import { PowerBIEmbed } from '../src/PowerBIEmbed';
 import { mockPowerBIService, mockedMethods } from "./mockService";
-import { IBasicFilter, FilterType } from 'powerbi-models';
+import { IBasicFilter, FilterType, FiltersOperations } from 'powerbi-models';
 
 // Use this function to render powerbi entity with only config
 function renderReport(container: HTMLDivElement, config) {
@@ -377,6 +377,46 @@ describe('tests of PowerBIEmbed', function () {
 
 			// Assert
 			expect(testReport.setFilters).toHaveBeenCalledTimes(0);
+			expect(testReport.removeFilters).toHaveBeenCalledTimes(0);
+		});
+
+		it('calls setFilters but does not apply filters if updated filter is of type models.OnLoadFilters', () => {
+			
+			// Arrange
+			let testReport: Report = undefined;
+			const oldConfig: IReportEmbedConfiguration = {
+				type: 'report',
+				id: 'fakeId',
+				embedUrl: 'fakeUrl',
+				accessToken: 'fakeToken',
+				filters: {}
+			};
+
+			const newConfig: IReportEmbedConfiguration = {
+				...oldConfig,
+				filters: {
+					allPages: { operation: FiltersOperations.Add }	// OnLoadFilter
+				}
+			};
+
+			testReport = renderReport(container, oldConfig);
+
+			spyOn(testReport, 'setFilters').and.callThrough();
+			spyOn(testReport, 'removeFilters').and.callThrough();
+			
+			// Act
+			act(() => {
+				ReactDOM.render(
+					<PowerBIEmbed
+						embedConfig={newConfig}
+						getEmbeddedComponent={(callbackReport: Report) => {
+							testReport = callbackReport;
+						}}
+					/>, container);
+			});
+
+			// Assert
+			expect(testReport.setFilters).toHaveBeenCalledTimes(1);
 			expect(testReport.removeFilters).toHaveBeenCalledTimes(0);
 		});
 

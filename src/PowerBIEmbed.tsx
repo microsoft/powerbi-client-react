@@ -19,7 +19,7 @@ import {
 	IDashboardEmbedConfiguration,
 	ITileEmbedConfiguration,
 } from 'powerbi-client';
-import { ReportLevelFilters } from 'powerbi-models';
+import { ReportLevelFilters, FiltersOperations } from 'powerbi-models';
 import isEqual from 'lodash.isequal';
 import { stringifyMap } from './utils';
 
@@ -37,12 +37,12 @@ export interface EmbedProps {
 
 	// Configuration for embedding the PowerBI entity (Required)
 	embedConfig:
-		| IReportEmbedConfiguration
-		| IDashboardEmbedConfiguration
-		| ITileEmbedConfiguration
-		| IQnaEmbedConfiguration
-		| IVisualEmbedConfiguration
-		| IEmbedConfiguration;
+	| IReportEmbedConfiguration
+	| IDashboardEmbedConfiguration
+	| ITileEmbedConfiguration
+	| IQnaEmbedConfiguration
+	| IVisualEmbedConfiguration
+	| IEmbedConfiguration;
 
 	// Callback method to get the embedded PowerBI entity object (Optional)
 	getEmbeddedComponent?: { (embeddedComponent: Embed): void };
@@ -163,14 +163,14 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 
 				// Set filters on the embedded report if available and different from the previous filter
 				if (filters && !isEqual(filters, prevEmbedConfig.filters)) {
-					// Upcast to Report and call setFilters
-					await (this.embed as Report).setFilters(filters);
+					// Upcast to Report and call updateFilters of replace filter type
+					await (this.embed as Report).updateFilters(FiltersOperations.Replace, filters);
 				}
 
 				// Remove filters on the embedded report, if previously applied
 				else if (!filters && prevEmbedConfig.filters) {
-					// Upcast to Report and call removeFilters
-					await (this.embed as Report).removeFilters();
+					// Upcast to Report and call updateFilters of removeAll filter type
+					await (this.embed as Report).updateFilters(FiltersOperations.RemoveAll);
 				}
 			} catch (err) {
 				console.error(err);

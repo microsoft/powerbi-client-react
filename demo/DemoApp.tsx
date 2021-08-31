@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState } from 'react';
-import { models, Report, Embed, IEmbedConfiguration, service, Page } from 'powerbi-client';
+import { models, Report, Embed, service, Page } from 'powerbi-client';
 import { PowerBIEmbed } from 'powerbi-client-react';
 import 'powerbi-report-authoring';
 import './DemoApp.css';
@@ -14,11 +14,11 @@ function DemoApp (): JSX.Element {
 	const [report, setReport] = useState<Report>();
 
 	// API end-point url to get embed config for a sample report
-	const sampleReportUrl = 'https://aka.ms/sampleReportEmbedConfig';
+	const sampleReportUrl = 'https://playgroundbe-bck-1.azurewebsites.net/Reports/SampleReport';
 
 	// Report config useState hook
 	// Values for properties like embedUrl, accessToken and settings will be set on click of buttons below
-	const [sampleReportConfig, setReportConfig] = useState<IEmbedConfiguration>({
+	const [sampleReportConfig, setReportConfig] = useState<models.IReportEmbedConfiguration>({
 		type: 'report',
 		embedUrl: undefined,
 		tokenType: models.TokenType.Embed,
@@ -28,15 +28,19 @@ function DemoApp (): JSX.Element {
 
 	// Map of event handlers to be applied to the embedding report
 	const eventHandlersMap = new Map([
-		['loaded', function () {console.log('Report has loaded');}],
+		['loaded', function () {
+			console.log('Report has loaded');
+		}],
 		['rendered', function () {
 			console.log('Report has rendered');
 			
 			// Update display message
 			setMessage('The report is rendered')
 		}],
-		['error', function (event: service.ICustomEvent<any>) { 
-			console.error(event.detail); 
+		['error', function (event?: service.ICustomEvent<any>) { 
+			if (event) {
+				console.error(event.detail);
+			}
 		}]
 	]);
 	
@@ -80,7 +84,7 @@ function DemoApp (): JSX.Element {
 		});
 	};
 
-	// Delete the first visual using powerbi-report-authoring
+	// Delete the first visual using powerbi-report-authoring library
 	const deleteVisual = async () => {
 
 		if (!report) {

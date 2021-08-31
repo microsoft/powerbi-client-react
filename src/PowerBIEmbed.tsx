@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as React from "react";
+import * as React from 'react';
 import {
 	service,
 	factories,
@@ -10,31 +10,52 @@ import {
 	Dashboard,
 	Tile,
 	Qna,
-	IEmbedConfiguration,
 	Visual,
-	IQnaEmbedConfiguration,
 	IEmbedSettings,
+	IEmbedConfiguration,
+	IQnaEmbedConfiguration,
 	IVisualEmbedConfiguration,
+	IReportEmbedConfiguration,
+	IDashboardEmbedConfiguration,
+	ITileEmbedConfiguration,
 } from 'powerbi-client';
+import { ReportLevelFilters } from 'powerbi-models';
+import isEqual from 'lodash.isequal';
 import { stringifyMap } from './utils';
+
+/**
+ * Type for event handler function of embedded entity
+ */
+export type EventHandler = {
+	(event?: service.ICustomEvent<any>, embeddedEntity?: Embed): void | null;
+};
 
 /**
  * Props interface for PowerBIEmbed component
  */
 export interface EmbedProps {
 
-	// Configuration for embedding the PowerBI entity
-	embedConfig: IEmbedConfiguration | IQnaEmbedConfiguration | IVisualEmbedConfiguration;
+	// Configuration for embedding the PowerBI entity (Required)
+	embedConfig:
+		| IReportEmbedConfiguration
+		| IDashboardEmbedConfiguration
+		| ITileEmbedConfiguration
+		| IQnaEmbedConfiguration
+		| IVisualEmbedConfiguration
+		| IEmbedConfiguration;
 
 	// Callback method to get the embedded PowerBI entity object (Optional)
 	getEmbeddedComponent?: { (embeddedComponent: Embed): void };
 
 	// Map of pair of event name and its handler method to be triggered on the event (Optional)
-	eventHandlers?: Map<string, service.IEventHandler<any> | null>;
-	
+	eventHandlers?: Map<string, EventHandler>;
+
 	// CSS class to be set on the embedding container (Optional)
 	cssClassName?: string;
-	
+
+	// Phased embedding flag (Optional)
+	phasedEmbedding?: boolean;
+
 	// Provide a custom implementation of PowerBI service (Optional)
 	service?: service.Service;
 }
@@ -97,9 +118,9 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 		// Check if HTML container is available
 		if (this.containerRef.current) {
 
-			// Decide to bootstrap or embed
+			// Decide to embed, load or bootstrap
 			if (this.props.embedConfig.accessToken && this.props.embedConfig.embedUrl) {
-				this.embed = this.powerbi.embed(this.containerRef.current, this.props.embedConfig);
+				this.embedEntity();
 			}
 			else {
 				this.embed = this.powerbi.bootstrap(this.containerRef.current, this.props.embedConfig);
@@ -112,7 +133,7 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 		}
 	};
 
-	componentDidUpdate(prevProps: EmbedProps): void {
+	async componentDidUpdate(prevProps: EmbedProps): Promise<void> {
 
 		this.embedOrUpdateAccessToken(prevProps);
 
@@ -121,8 +142,40 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 			this.setEventHandlers(this.embed, this.props.eventHandlers);
 		}
 
-		// Update settings in embedConfig of props
-		this.updateSettings();
+		// Allow settings update only when settings object in embedConfig of current and previous props is different
+		if (!isEqual(this.props.embedConfig.settings, prevProps.embedConfig.settings)) {
+			await this.updateSettings();
+		}
+
+		// Update pageName and filters for a report
+		if (this.props.embedConfig.type === EmbedType.Report) {
+			try {
+				// Typecasting to IReportEmbedConfiguration
+				const embedConfig = this.props.embedConfig as IReportEmbedConfiguration;
+				const filters = embedConfig.filters as ReportLevelFilters[];
+				const prevEmbedConfig = prevProps.embedConfig as IReportEmbedConfiguration;
+
+				// Set new page if available and different from the previous page
+				if (embedConfig.pageName && embedConfig.pageName !== prevEmbedConfig.pageName) {
+					// Upcast to Report and call setPage
+					await (this.embed as Report).setPage(embedConfig.pageName);
+				}
+
+				// Set filters on the embedded report if available and different from the previous filter
+				if (filters && !isEqual(filters, prevEmbedConfig.filters)) {
+					// Upcast to Report and call setFilters
+					await (this.embed as Report).setFilters(filters);
+				}
+
+				// Remove filters on the embedded report, if previously applied
+				else if (!filters && prevEmbedConfig.filters) {
+					// Upcast to Report and call removeFilters
+					await (this.embed as Report).removeFilters();
+				}
+			} catch (err) {
+				console.error(err);
+			}
+		}
 	};
 
 	componentWillUnmount(): void {
@@ -142,8 +195,29 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 	};
 
 	/**
-	 * Choose to _embed_ the powerbi entity or _update the accessToken_ in the embedded entity 
-	 * or do nothing when the embedUrl and accessToken did not update in the new props
+	 * Embed the powerbi entity (Load for phased embedding)
+	 */
+	private embedEntity(): void {
+		// Check if the HTML container is rendered and available
+		if (!this.containerRef.current) {
+			return;
+		}
+
+		// Load when props.phasedEmbedding is true and embed type is report, embed otherwise
+		if (this.props.phasedEmbedding && this.props.embedConfig.type === EmbedType.Report) {
+			this.embed = this.powerbi.load(this.containerRef.current, this.props.embedConfig);
+		}
+		else {
+			if (this.props.phasedEmbedding) {
+				console.error(`Phased embedding is not supported for type ${this.props.embedConfig.type}`)
+			}
+			this.embed = this.powerbi.embed(this.containerRef.current, this.props.embedConfig);
+		}
+	}
+
+	/**
+	 * When component updates, choose to _embed_ the powerbi entity or _update the accessToken_ in the embedded entity 
+	 * or do nothing if the embedUrl and accessToken did not update in the new props
 	 * 
 	 * @param prevProps EmbedProps
 	 * @returns void
@@ -155,24 +229,27 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 			return;
 		}
 
-		// Embed in the following scenarios
+		// Embed or load in the following scenarios
 		//		1. AccessToken was not provided in prev props (E.g. Report was bootstrapped earlier)
 		//		2. Embed URL is updated (E.g. New report is to be embedded)
-		if (this.containerRef.current
-			&& (!prevProps.embedConfig.accessToken
-				|| this.props.embedConfig.embedUrl !== prevProps.embedConfig.embedUrl)) {
-					this.embed = this.powerbi.embed(this.containerRef.current, this.props.embedConfig);
+		if (
+			this.containerRef.current &&
+			(!prevProps.embedConfig.accessToken ||
+				this.props.embedConfig.embedUrl !== prevProps.embedConfig.embedUrl)
+		) {
+			this.embedEntity();
 		}
 
 		// Set new access token,
 		// when access token is updated but embed Url is same
-		else if (this.props.embedConfig.accessToken !== prevProps.embedConfig.accessToken
-			&& this.props.embedConfig.embedUrl === prevProps.embedConfig.embedUrl
-			&& this.embed) {
-
+		else if (
+			this.props.embedConfig.accessToken !== prevProps.embedConfig.accessToken &&
+			this.props.embedConfig.embedUrl === prevProps.embedConfig.embedUrl &&
+			this.embed
+		) {
 			this.embed.setAccessToken(this.props.embedConfig.accessToken)
-				.catch(error => {
-					console.error(`setAccessToken error: ${error}`); 
+				.catch((error) => {
+					console.error(`setAccessToken error: ${error}`);
 				});
 		}
 	}
@@ -185,12 +262,12 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 	 * @returns void
 	 */
 	private setEventHandlers(
-		embed: Embed, 
-		eventHandlerMap: Map<string, service.IEventHandler<any> | null>): void {
-
+		embed: Embed,
+		eventHandlerMap: Map<string, EventHandler>
+	): void {
 		// Get string representation of eventHandlerMap
 		const eventHandlerMapString = stringifyMap(this.props.eventHandlers);
-		
+
 		// Check if event handler map changed
 		if (this.prevEventHandlerMapString === eventHandlerMapString) {
 			return;
@@ -229,18 +306,20 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 		const invalidEvents: Array<string> = [];
 
 		// Apply all provided event handlers
-		eventHandlerMap.forEach(function (eventHandlerMethod, eventName) {
-
+		eventHandlerMap.forEach((eventHandlerMethod, eventName) => {
 			// Check if this event is allowed
 			if (allowedEvents.includes(eventName)) {
 
 				// Removes event handler for this event
 				embed.off(eventName);
 
+				// Event handler is effectively removed for this event when eventHandlerMethod is null
 				if (eventHandlerMethod) {
 
 					// Set single event handler
-					embed.on(eventName, eventHandlerMethod);
+					embed.on(eventName, (event: service.ICustomEvent<any>): void => {
+						eventHandlerMethod(event, this.embed);
+					});
 				}
 			}
 			else {
@@ -272,22 +351,23 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 	 * 
 	 * @returns void
 	 */
-	private updateSettings(): void {
+	private async updateSettings(): Promise<void> {
 		if (!this.embed || !this.props.embedConfig.settings) {
 			return;
-		} 
+		}
 
 		switch (this.props.embedConfig.type) {
 			case EmbedType.Report: {
-
 				// Typecasted to IEmbedSettings as props.embedConfig.settings can be ISettings via IQnaEmbedConfiguration
 				const settings = this.props.embedConfig.settings as IEmbedSettings;
 
-				// Upcast to Report and call updateSettings
-				(this.embed as Report).updateSettings(settings)
-					.catch((error: any) => {
-						console.error(`Error in method updateSettings: ${error}`);
-					});
+				try {
+					// Upcast to Report and call updateSettings
+					await (this.embed as Report).updateSettings(settings);
+				} catch (error) {
+					console.error(`Error in method updateSettings: ${error}`);
+				}
+
 				break;
 			}
 			case EmbedType.Dashboard:

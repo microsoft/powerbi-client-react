@@ -8,7 +8,7 @@ import 'powerbi-report-authoring';
 import './DemoApp.css';
 
 // Root Component to demonstrate usage of wrapper component
-function DemoApp (): JSX.Element {
+function DemoApp(): JSX.Element {
 
 	// PowerBI Report object (to be received via callback)
 	const [report, setReport] = useState<Report>();
@@ -33,25 +33,25 @@ function DemoApp (): JSX.Element {
 		}],
 		['rendered', function () {
 			console.log('Report has rendered');
-			
+
 			// Update display message
 			setMessage('The report is rendered')
 		}],
-		['error', function (event?: service.ICustomEvent<any>) { 
+		['error', function (event?: service.ICustomEvent<any>) {
 			if (event) {
 				console.error(event.detail);
 			}
 		}]
 	]);
-	
+
 	// Fetch sample report's config (eg. embedUrl and AccessToken) for embedding
 	const mockSignIn = async () => {
 
 		// Fetch sample report's embed config
 		const reportConfigResponse = await fetch(sampleReportUrl);
-		
+
 		if (!reportConfigResponse.ok) {
-			console.error(`Failed to fetch config for report. Status: ${ reportConfigResponse.status } ${ reportConfigResponse.statusText }`);
+			console.error(`Failed to fetch config for report. Status: ${reportConfigResponse.status} ${reportConfigResponse.statusText}`);
 			return;
 		}
 
@@ -84,9 +84,43 @@ function DemoApp (): JSX.Element {
 		});
 	};
 
+	const resetReport = () => {
+		//Reload Visuals
+		report?.reload();
+		//Set default settings
+		setReportConfig({
+			...sampleReportConfig,
+			settings: {
+				panes: {
+					bookmarks: {
+						visible: false
+					},
+					fields: {
+						expanded: false
+					},
+					filters: {
+						expanded: false,
+						visible: true
+					},
+					pageNavigation: {
+						visible: true
+					},
+					selection: {
+						visible: true
+					},
+					syncSlicers: {
+						visible: true
+					},
+					visualizations: {
+						expanded: false
+					}
+				}
+			}
+		});
+	};
+
 	// Delete the first visual using powerbi-report-authoring library
 	const deleteVisual = async () => {
-
 		if (!report) {
 			console.log('Report not available');
 			return;
@@ -119,7 +153,7 @@ function DemoApp (): JSX.Element {
 		}
 
 		try {
-			
+
 			// Documentation link: https://github.com/microsoft/powerbi-report-authoring/wiki/Visualization
 			// Delete the visual 
 			await activePage.deleteVisual(visual.name);
@@ -133,7 +167,7 @@ function DemoApp (): JSX.Element {
 
 	async function getActivePage(powerbiReport: Report): Promise<Page | undefined> {
 		const pages = await powerbiReport.getPages();
-	
+
 		// Get the active page
 		const activePage = pages.filter(function (page) {
 			return page.isActive
@@ -144,54 +178,57 @@ function DemoApp (): JSX.Element {
 
 	const [displayMessage, setMessage] = useState(`The report is bootstrapped. Click the Embed Report button to set the access token`);
 
-	const controlButtons = 
-		<div className = "controls">
-			<button onClick = { mockSignIn }>
+	const controlButtons =
+		<div className="controls">
+			<button onClick={mockSignIn}>
 				Embed Report</button>
 
-			<button onClick = { changeSettings }>
+			<button onClick={changeSettings}>
 				Hide filter pane</button>
 
-			<button onClick = { deleteVisual }>
+			<button onClick={deleteVisual}>
 				Delete a Visual</button>
+
+			<button onClick={resetReport}>
+				Reset Report</button>
 		</div>;
 
-	const header = 
-		<div className = "header">
-			<div className = "title">Power BI React component demo</div>
+	const header =
+		<div className="header">
+			<div className="title">Power BI React component demo</div>
 		</div>;
 
-	const footer = 
-		<div className = "footer">
-			<div className = "footer-text">
+	const footer =
+		<div className="footer">
+			<div className="footer-text">
 				GitHub: &nbsp;
 				<a href="https://github.com/microsoft/PowerBI-client-react">https://github.com/microsoft/PowerBI-client-react</a>
 			</div>
 		</div>;
-	
+
 	return (
 		<div>
-			{ header }
-			
+			{header}
+
 			<PowerBIEmbed
-				embedConfig = { sampleReportConfig }
-				eventHandlers = { eventHandlersMap }
-				cssClassName = { "report-style-class" }
-				getEmbeddedComponent = { (embedObject:Embed) => {
-					console.log(`Embedded object of type "${ embedObject.embedtype }" received`);
+				embedConfig={sampleReportConfig}
+				eventHandlers={eventHandlersMap}
+				cssClassName={"report-style-class"}
+				getEmbeddedComponent={(embedObject: Embed) => {
+					console.log(`Embedded object of type "${embedObject.embedtype}" received`);
 					setReport(embedObject as Report);
-				} }
+				}}
 			/>
 
-			<div className = "hr"></div>
+			<div className="hr"></div>
 
-			<div className = "displayMessage">
-				{ displayMessage }
+			<div className="displayMessage">
+				{displayMessage}
 			</div>
 
-			{ controlButtons }
+			{controlButtons}
 
-			{ footer }
+			{footer}
 		</div>
 	);
 }

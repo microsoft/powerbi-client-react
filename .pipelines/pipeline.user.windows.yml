@@ -105,15 +105,15 @@ package:
           include:
             - "**/*.tgz"
 
-test:
-  commands:
-    - !!testcommand
-      name: 'Test powerbi-client-react'
-      arguments: 'test.ps1'
-      command: '.pipelines\cdpx_run_ps.cmd'
-      testresults:
-        - title: 'powerbi-client-react test results'
-          type: 'jasmine'
-          from: 'reports'
-          include:
-            - "**coverage/**/index.html"
+#test:
+#  commands:
+#    - !!testcommand
+#      name: 'Test powerbi-client-react'
+#      arguments: 'test.ps1'
+#      command: '.pipelines\cdpx_run_ps.cmd'
+#      testresults:
+#        - title: 'powerbi-client-react test results'
+#          type: 'jasmine'
+#          from: 'reports'
+#          include:
+#            - "**coverage/**/index.html"

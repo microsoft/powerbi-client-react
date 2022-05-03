@@ -3,7 +3,7 @@
 
 let path = require('path');
 
-module.exports = function(config) {
+module.exports = function (config) {
 	config.set({
 
 		// base path that will be used to resolve all patterns (eg. files, exclude)
@@ -41,9 +41,23 @@ module.exports = function(config) {
 		// enable / disable watching file and executing tests whenever any file changes
 		autoWatch: false,
 
+		plugins: [
+			require('karma-jasmine'),
+			require('karma-chrome-launcher'),
+		],
+
 		// start these browsers
 		// available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-		browsers: ['PhantomJS'],
+		browsers: ["Chrome_headless"],
+
+		customLaunchers: {
+			'Chrome_headless': {
+				base: 'Chrome',
+				flags: [
+					'--no-sandbox',
+				]
+			},
+		},
 
 		// Continuous Integration mode
 		// if true, Karma captures browsers, runs the tests and exits

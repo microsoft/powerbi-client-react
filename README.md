@@ -17,7 +17,7 @@ import { PowerBIEmbed } from 'powerbi-client-react';
 		id: '<Report Id>',
 		embedUrl: '<Embed Url>',
 		accessToken: '<Access Token>',
-		tokenType: models.TokenType.Embed,
+		tokenType: models.TokenType.Embed, // Supported tokenTypes, Aad for user owns data and Embed for app owns data
 		settings: {
 			panes: {
 				filters: {

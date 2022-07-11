@@ -17,8 +17,10 @@ Write-Host "start: Get dist folder files"
 & dir "dist"
 $dir = './dist'
 $hasAnySubdir = (Get-ChildItem -Force -Directory $dir).Count -gt 0
-Write-Host "dist folder has subdirs: $hasAnySubdir"
-$exitCode += If ($hasAnySubdir) {1} Else {0};
+If ($hasAnySubdir) {
+    Write-Host "Error: dist folder has subfolders!"
+    $exitCode += 1;
+}
 Write-Host "Done: Get dist folder files"
 
 exit $exitCode

@@ -45,6 +45,7 @@
 		"@typescript-eslint/parser": "^3.0.2",
 		"eslint": "^7.4.0",
 		"eslint-plugin-react": "^7.20.0",
+		"fs": "^0.0.2",
 		"jasmine-core": "^3.5.0",
 		"karma": "^6.3.17",
 		"karma-chrome-launcher": "^3.1.0",

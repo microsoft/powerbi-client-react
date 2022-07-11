@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { EmbedProps } from "./PowerBIEmbed";
-import packageInfo from '../package.json';
+import { readFileSync } from "fs";
 
 /**
  * Get JSON string representation of the given map.
@@ -44,5 +44,15 @@ export function stringifyMap(map: EmbedProps['eventHandlers']): string {
 };
 
 // SDK information to be used with service instance
-export const SdkType: string = "powerbi-client-react";
-export const SdkWrapperVersion: string = packageInfo.version;
+export const SdkType = "powerbi-client-react";
+export const SdkWrapperVersion: string = getSdkWrapperVersion();
+
+function getSdkWrapperVersion() {
+	try {
+		const packageInfo = JSON.parse(readFileSync('../package.json').toString());
+		return packageInfo.version;
+	}
+	catch {
+		return "";
+	}
+}

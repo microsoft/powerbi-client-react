@@ -8,7 +8,6 @@
 		"target": "es5",
 		"esModuleInterop": false,
 		"allowSyntheticDefaultImports": true,
-		"resolveJsonModule": true,
 		"strict": true,
 		"noErrorTruncation": true,
 		"module": "ES6",

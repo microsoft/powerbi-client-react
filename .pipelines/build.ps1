@@ -22,10 +22,4 @@ If ($hasAnySubdir) {
 }
 Write-Host "Done: Get dist folder files"
 
-Write-Host "start: test package"
-& .\.pipelines\test.ps1
-Write-Host "done: test package"
-
-$exitCode += $LASTEXITCODE;
-
 exit $exitCode

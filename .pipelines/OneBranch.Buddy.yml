@@ -71,23 +71,13 @@ extends:
           ob_sdl_cg_failOnAlert: false
 
         steps:
-          - task: NodeTool@0
-            displayName: 'Install Node.js'
+          - task: onebranch.pipeline.version@1 # generates automatic version. For other versioning options check https://aka.ms/obpipelines/versioning
+            displayName: 'Setup BuildNumber'
             inputs:
-              versionSpec: '16.x'
-
-          # Custom Versioning - we will build the version using package.json in versioning commands. 
-          - task: CmdLine@2
-            displayName: 'Set Version'
-            inputs:
-              script: '$(Build.SourcesDirectory)\.pipelines\onebranch_run_ps.cmd version.ps1'
-              workingDirectory: '$(Build.SourcesDirectory)'
-
-          # Add the versioning task after running Version script
-          - task: onebranch.pipeline.version@1
-            inputs:
-              system: 'Custom'
-              customVersion: '$(CustomBuildNumber)'
+              system: 'RevisionCounter'
+              major: '1'
+              minor: '0'
+              exclude_commit: true
 
           - task: CmdLine@2
             displayName: 'NPM Install'

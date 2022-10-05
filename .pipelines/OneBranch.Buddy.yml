@@ -87,14 +87,14 @@ extends:
           - task: CmdLine@2
             displayName: 'NPM Install'
             inputs:
-              script: '$(Build.SourcesDirectory)\.pipelines\onebranch_run_ps.cmd restore.ps1'
+              script: '$(Build.SourcesDirectory)\.pipelines\restore.ps1'
               workingDirectory: '$(Build.SourcesDirectory)'
 
           # Commands to run during the build stage.
           - task: CmdLine@2
             displayName: 'Build'
             inputs:
-              script: '$(Build.SourcesDirectory)\.pipelines\onebranch_run_ps.cmd build.ps1'
+              script: '$(Build.SourcesDirectory)\.pipelines\build.ps1'
               workingDirectory: '$(Build.SourcesDirectory)'
 
           # Signing the files created by the build script

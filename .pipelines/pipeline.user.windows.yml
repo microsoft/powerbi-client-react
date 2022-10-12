@@ -41,6 +41,10 @@ static_analysis_options:
 
 package_sources:
   npm:
+    config_files:
+          - include:
+            - ".npmrc"
+            - "demo\\.npmrc"
     feeds:
       registry: https://powerbi.pkgs.visualstudio.com/_packaging/SDK.Externals/npm/registry/
 

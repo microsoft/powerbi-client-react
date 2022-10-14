@@ -128,11 +128,11 @@ extends:
                 !$(Build.SourcesDirectory)\**\.git\**\*
                 !$(Build.SourcesDirectory)\**\.pipelines\**\*
                 !$(Build.SourcesDirectory)\**\.vscode\**\*
-                !$(Build.SourcesDirectory)\**\dist\**\*
-                !$(Build.SourcesDirectory)\'**\demo\**\*'
-                !$(Build.SourcesDirectory)\**\node_modules\**\*
                 !$(Build.SourcesDirectory)\**\test\**\*
-                !$(Build.SourcesDirectory)\'**\compiledTests\**\*'
+                !$(Build.SourcesDirectory)\**\demo\**\*
+                !$(Build.SourcesDirectory)\**\dist\**\*
+                !$(Build.SourcesDirectory)\**\node_modules\**\*
+                !$(Build.SourcesDirectory)\**\compiledTests\**\*
               TargetFolder: '$(OUTPUTROOT)\outputs\build\source'
 
           # Commands to run during the packaging stage.

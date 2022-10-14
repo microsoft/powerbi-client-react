@@ -71,13 +71,12 @@ extends:
           ob_sdl_cg_failOnAlert: false
 
         steps:
-          - task: onebranch.pipeline.version@1 # generates automatic version. For other versioning options check https://aka.ms/obpipelines/versioning
-            displayName: 'Setup BuildNumber'
+          # Custom Versioning - we will build the version using package.json in versioning commands. 
+          - task: CmdLine@2
+            displayName: 'Set Version'
             inputs:
-              system: 'RevisionCounter'
-              major: '1'
-              minor: '0'
-              exclude_commit: true
+              script: '$(Build.SourcesDirectory)\.pipelines\onebranch_run_ps.cmd version.ps1'
+              workingDirectory: '$(Build.SourcesDirectory)'
 
           - task: NodeTool@0
             displayName: 'Install Node.js'
@@ -107,6 +106,35 @@ extends:
               files_to_sign: 'dist\**\*;README.md;package.json;*.md'
               search_root: '$(Build.SourcesDirectory)'
 
+          # Copying build artifacts to the Output folder.
+          - task: CopyFiles@2
+            displayName: 'Copy Dist to Output folder'
+            inputs:
+              SourceFolder: '$(Build.SourcesDirectory)'
+              Contents: |
+                $(Build.SourcesDirectory)\dist\**\*
+                $(Build.SourcesDirectory)\LICENSE.txt
+                $(Build.SourcesDirectory)\package.json
+                $(Build.SourcesDirectory)\README.md
+                !$(Build.SourcesDirectory)\node_modules\**
+              TargetFolder: '$(OUTPUTROOT)\outputs\build\build_artifacts'
+
+          # Copying source artifacts to the Output folder.
+          - task: CopyFiles@2
+            displayName: 'Copy source to Output folder'
+            inputs:
+              Contents: |
+                $(Build.SourcesDirectory)\**\*
+                !$(Build.SourcesDirectory)\**\.git\**\*
+                !$(Build.SourcesDirectory)\**\.pipelines\**\*
+                !$(Build.SourcesDirectory)\**\.vscode\**\*
+                !$(Build.SourcesDirectory)\**\dist\**\*
+                !$(Build.SourcesDirectory)\'**\demo\**\*'
+                !$(Build.SourcesDirectory)\**\node_modules\**\*
+                !$(Build.SourcesDirectory)\**\test\**\*
+                !$(Build.SourcesDirectory)\'**\compiledTests\**\*'
+              TargetFolder: '$(OUTPUTROOT)\outputs\build\source'
+
           # Commands to run during the packaging stage.
           - task: CmdLine@2
             displayName: 'Package'
@@ -124,47 +152,11 @@ extends:
               files_to_sign: '**/*.tgz'
               search_root: '$(Build.SourcesDirectory)'
 
-          # Copying build artifacts to the Output folder.
-          - task: CopyFiles@2
-            displayName: 'Copy Dist to Output folder'
-            inputs:
-              Contents: |
-                $(Build.SourcesDirectory)\README.md
-                $(Build.SourcesDirectory)\LICENSE.txt
-                !$(Build.SourcesDirectory)\node_modules\**
-              TargetFolder: '$(OUTPUTROOT)\outputs\build\build_artifacts'
-
-          # Copying build artifacts to the Output folder.
-          - task: CopyFiles@2
-            displayName: 'Copy Dist to Output folder'
-            inputs:
-              SourceFolder: '$(Build.SourcesDirectory)'
-              Contents: |
-                $(Build.SourcesDirectory)\dist\**
-                $(Build.SourcesDirectory)\package.json
-                !$(Build.SourcesDirectory)\node_modules\**
-              TargetFolder: '$(OUTPUTROOT)\outputs\build\build_artifacts'
-
-          # Copying source artifacts to the Output folder.
-          - task: CopyFiles@2
-            displayName: 'Copy source to Output folder'
-            inputs:
-              Contents: |
-                $(Build.SourcesDirectory)\**
-                $(Build.SourcesDirectory)\*.md
-                $(Build.SourcesDirectory)\LICENSE.txt
-                !.git/**/*
-                !$(Build.SourcesDirectory)\dist\**
-                !$(Build.SourcesDirectory)\package-lock.json
-                !$(Build.SourcesDirectory)\node_modules\**
-                !$(Build.SourcesDirectory)\*.tgz
-              TargetFolder: '$(OUTPUTROOT)\outputs\build\source'
-
           # Copying tgz packages to the Output folder.
           - task: CopyFiles@2
-            displayName: 'Copy tar-package to Output folder'
+            displayName: 'Copy tgz package to Output folder'
             inputs:
               SourceFolder: '$(Build.SourcesDirectory)'
               Contents: |
-                $(Build.SourcesDirectory)\*.tgz
+                $(Build.SourcesDirectory)\**\*.tgz
               TargetFolder: '$(OUTPUTROOT)\outputs\package\tgz-package'

@@ -19,14 +19,10 @@ parameters: # parameters are shown up in ADO UI in a build queue time
 variables:
   CDP_DEFINITION_BUILD_COUNT: $[counter('', 0)] # needed for onebranch.pipeline.version task https://aka.ms/obpipelines/versioning
   system.debug: ${{ parameters.debug }}
-  ENABLE_PRS_DELAYSIGN: 0
+  ENABLE_PRS_DELAYSIGN: 1
   ROOT: $(Build.SourcesDirectory)
   REPOROOT: $(Build.SourcesDirectory)
   OUTPUTROOT: $(REPOROOT)\out
-  CDP_USER_SOURCE_FOLDER_CONTAINER_PATH: $(Build.SourcesDirectory)
-  CDP_DEFINITION_BUILD_COUNT_DAY: $[counter(format('{0:yyyyMMdd}', pipeline.startTime), 1)]
-  CDP_DEFINITION_BUILD_COUNT_MONTH: $[counter(format('{0:yyyyMM}', pipeline.startTime), 1)]
-  CDP_DEFINITION_BUILD_COUNT_YEAR: $[counter(format('{0:yyyy}', pipeline.startTime), 1)]
   NUGET_XMLDOC_MODE: none
 
   WindowsContainerImage: 'cdpxwin1809.azurecr.io/global/obinfra/windows/1809/vs2019:latest' # Docker image which is used to build the project https://aka.ms/obpipelines/containers
@@ -44,14 +40,6 @@ extends:
     globalSdl: # https://aka.ms/obpipelines/sdl
       tsa:
         enabled: false # onebranch publish all sdl results to TSA. If TSA is disabled all SDL tools will forced into 'break' build mode.
-      # credscan:
-      #   suppressionsFile: $(Build.SourcesDirectory)\.config\CredScanSuppressions.json
-      binskim:
-        break: true # always break the build on binskim issues. You can disable it by setting to 'false'
-      policheck:
-        break: true # always break the build on policheck issues. You can disable it by setting to 'false'
-      # baseline:
-      #   baselineFile: $(Build.SourcesDirectory)\.gdn\global.gdnbaselines
       cg:
         failOnAlert: false
 
@@ -63,10 +51,8 @@ extends:
           type: windows  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
 
         variables: # More settings at https://aka.ms/obpipelines/yaml/jobs
-          ob_outputDirectory: '$(REPOROOT)\out' # this directory is uploaded to pipeline artifacts, reddog and cloudvault. More info at https://aka.ms/obpipelines/artifacts
+          ob_outputDirectory: '$(OUTPUTROOT)' # this directory is uploaded to pipeline artifacts, reddog and cloudvault. More info at https://aka.ms/obpipelines/artifacts
           ob_sdl_binskim_break: true # https://aka.ms/obpipelines/sdl
-          # ob_sdl_baseline_baselineFile: $(Build.SourcesDirectory)\.gdn\build.nonofficial.gdnbaselines
-          # ob_sdl_codeSignValidation_excludes: -|**\*.js # Example -|**\*.js;-|**\Test*\**
           ob_artifactBaseName: 'drop'
           ob_sdl_cg_failOnAlert: false
 
@@ -83,17 +69,25 @@ extends:
             inputs:
               versionSpec: '16.x'
 
+          # Commands to run during the restore stage
           - task: CmdLine@2
-            displayName: 'NPM Install'
+            displayName: 'Restore'
             inputs:
               script: '$(Build.SourcesDirectory)\.pipelines\onebranch_run_ps.cmd restore.ps1'
               workingDirectory: '$(Build.SourcesDirectory)'
 
-          # Commands to run during the build stage.
+          # Commands to run during the build stage
           - task: CmdLine@2
             displayName: 'Build'
             inputs:
               script: '$(Build.SourcesDirectory)\.pipelines\onebranch_run_ps.cmd build.ps1'
+              workingDirectory: '$(Build.SourcesDirectory)'
+
+          # Commands to run during the packaging stage.
+          - task: CmdLine@2
+            displayName: 'Package'
+            inputs:
+              script: '$(Build.SourcesDirectory)\.pipelines\onebranch_run_ps.cmd package.ps1'
               workingDirectory: '$(Build.SourcesDirectory)'
 
           # Signing the files created by the build script
@@ -103,7 +97,7 @@ extends:
               command: 'sign'
               signing_environment: 'azure-ado'
               signing_profile: 'internal_azure_service'
-              files_to_sign: 'dist\**\*;README.md;package.json;*.md'
+              files_to_sign: 'dist\**\*;README.md;package.json;*.md;**/*.tgz'
               search_root: '$(Build.SourcesDirectory)'
 
           # Copying build artifacts to the Output folder.
@@ -121,7 +115,7 @@ extends:
 
           # Copying source artifacts to the Output folder.
           - task: CopyFiles@2
-            displayName: 'Copy source to Output folder'
+            displayName: 'Copy Source to Output folder'
             inputs:
               Contents: |
                 $(Build.SourcesDirectory)\**\*
@@ -135,26 +129,9 @@ extends:
                 !$(Build.SourcesDirectory)\**\compiledTests\**\*
               TargetFolder: '$(OUTPUTROOT)\outputs\build\source'
 
-          # Commands to run during the packaging stage.
-          - task: CmdLine@2
-            displayName: 'Package'
-            inputs:
-              script: '$(Build.SourcesDirectory)\.pipelines\onebranch_run_ps.cmd package.ps1'
-              workingDirectory: '$(Build.SourcesDirectory)'
-
-          # Signing the files created by the packaging script
-          - task: onebranch.pipeline.signing@1
-            displayName: 'Sign binaries'
-            inputs:
-              command: 'sign'
-              signing_environment: 'azure-ado'
-              signing_profile: 'internal_azure_service'
-              files_to_sign: '**/*.tgz'
-              search_root: '$(Build.SourcesDirectory)'
-
-          # Copying tgz packages to the Output folder.
+          # Copying tgz package to the Output folder.
           - task: CopyFiles@2
-            displayName: 'Copy tgz package to Output folder'
+            displayName: 'Copy tgz-package to Output folder'
             inputs:
               SourceFolder: '$(Build.SourcesDirectory)'
               Contents: |

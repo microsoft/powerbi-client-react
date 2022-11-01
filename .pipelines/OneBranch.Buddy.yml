@@ -57,7 +57,7 @@ extends:
           ob_sdl_cg_failOnAlert: false
 
         steps:
-          # Custom Versioning - we will build the version using package.json in versioning commands.
+          # Custom Versioning - we will build the version using package.json in versioning commands
           - task: PowerShell@2
             displayName: 'Set Version'
             inputs:

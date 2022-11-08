@@ -75,6 +75,11 @@ extends:
             inputs:
               workingFile: '$(Build.SourcesDirectory)\.npmrc'
 
+          - task: npmAuthenticate@0
+            displayName: 'NPM Authenticate'
+            inputs:
+              workingFile: '$(Build.SourcesDirectory)\demo\.npmrc'
+
           - task: PowerShell@2
             displayName: 'Restore'
             inputs:

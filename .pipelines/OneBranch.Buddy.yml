@@ -117,27 +117,28 @@ extends:
             inputs:
               SourceFolder: '$(Build.SourcesDirectory)'
               Contents: |
-                $(Build.SourcesDirectory)\dist\**\*
-                $(Build.SourcesDirectory)\LICENSE.txt
-                $(Build.SourcesDirectory)\package.json
-                $(Build.SourcesDirectory)\README.md
-                !$(Build.SourcesDirectory)\node_modules\**
+                dist\**\*
+                LICENSE.txt
+                package.json
+                README.md
+                !node_modules\**
               TargetFolder: '$(OUTPUTROOT)\outputs\build\build_artifacts'
 
           # Copying source artifacts to the Output folder
           - task: CopyFiles@2
             displayName: 'Copy Source to Output folder'
             inputs:
+              SourceFolder: '$(Build.SourcesDirectory)'
               Contents: |
-                $(Build.SourcesDirectory)\**\*
-                !$(Build.SourcesDirectory)\**\.git\**\*
-                !$(Build.SourcesDirectory)\**\.pipelines\**\*
-                !$(Build.SourcesDirectory)\**\.vscode\**\*
-                !$(Build.SourcesDirectory)\**\test\**\*
-                !$(Build.SourcesDirectory)\**\demo\**\*
-                !$(Build.SourcesDirectory)\**\dist\**\*
-                !$(Build.SourcesDirectory)\**\node_modules\**\*
-                !$(Build.SourcesDirectory)\**\compiledTests\**\*
+                **\*
+                !**\.git\**\*
+                !**\.pipelines\**\*
+                !**\.vscode\**\*
+                !**\test\**\*
+                !**\demo\**\*
+                !**\dist\**\*
+                !**\node_modules\**\*
+                !**\compiledTests\**\*
               TargetFolder: '$(OUTPUTROOT)\outputs\build\source'
 
           # Copying tgz package to the Output folder
@@ -146,5 +147,5 @@ extends:
             inputs:
               SourceFolder: '$(Build.SourcesDirectory)'
               Contents: |
-                $(Build.SourcesDirectory)\**\*.tgz
+              **\*.tgz
               TargetFolder: '$(OUTPUTROOT)\outputs\package\tgz-package'

@@ -147,5 +147,5 @@ extends:
             inputs:
               SourceFolder: '$(Build.SourcesDirectory)'
               Contents: |
-              **\*.tgz
-            TargetFolder: '$(OUTPUTROOT)\outputs\package\tgz-package'
+                **\*.tgz
+              TargetFolder: '$(OUTPUTROOT)\outputs\package\tgz-package'

@@ -148,4 +148,4 @@ extends:
               SourceFolder: '$(Build.SourcesDirectory)'
               Contents: |
               **\*.tgz
-              TargetFolder: '$(OUTPUTROOT)\outputs\package\tgz-package'
+            TargetFolder: '$(OUTPUTROOT)\outputs\package\tgz-package'

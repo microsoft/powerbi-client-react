@@ -121,7 +121,7 @@ extends:
                 LICENSE.txt
                 package.json
                 README.md
-                !node_modules\**
+                !node_modules\**\*
               TargetFolder: '$(OUTPUTROOT)\outputs\build\build_artifacts'
 
           # Copying source artifacts to the Output folder
@@ -130,15 +130,15 @@ extends:
             inputs:
               SourceFolder: '$(Build.SourcesDirectory)'
               Contents: |
-                **\*
-                !**\.git\**\*
-                !**\.pipelines\**\*
-                !**\.vscode\**\*
-                !**\test\**\*
-                !**\demo\**\*
-                !**\dist\**\*
-                !**\node_modules\**\*
-                !**\compiledTests\**\*
+                *
+                !.git\**\*
+                !.pipelines\**\*
+                !.vscode\**\*
+                !test\**\*
+                !demo\**\*
+                !dist\**\*
+                !node_modules\**\*
+                !compiledTests\**\*
               TargetFolder: '$(OUTPUTROOT)\outputs\build\source'
 
           # Copying tgz package to the Output folder
@@ -147,5 +147,5 @@ extends:
             inputs:
               SourceFolder: '$(Build.SourcesDirectory)'
               Contents: |
-                **\*.tgz
+                *.tgz
               TargetFolder: '$(OUTPUTROOT)\outputs\package\tgz-package'

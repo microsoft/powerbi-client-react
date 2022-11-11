@@ -137,6 +137,8 @@ extends:
                 !test\**\*
                 !demo\**\*
                 !dist\**\*
+                !out\**
+                !*.tgz
                 !node_modules\**\*
                 !compiledTests\**\*
               TargetFolder: '$(OUTPUTROOT)\outputs\build\source'

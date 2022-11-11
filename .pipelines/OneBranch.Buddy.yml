@@ -130,7 +130,7 @@ extends:
             inputs:
               SourceFolder: '$(Build.SourcesDirectory)'
               Contents: |
-                *
+                **\*
                 !.git\**\*
                 !.pipelines\**\*
                 !.vscode\**\*

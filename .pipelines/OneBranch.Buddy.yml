@@ -108,7 +108,7 @@ extends:
               command: 'sign'
               signing_environment: 'azure-ado'
               signing_profile: 'internal_azure_service'
-              files_to_sign: 'dist\**\*;README.md;package.json;*.md;**/*.tgz'
+              files_to_sign: 'dist\**\*;README.md;package.json;*.md;**\*;**\*.tgz'
               search_root: '$(Build.SourcesDirectory)'
 
           # Copying build artifacts to the Output folder

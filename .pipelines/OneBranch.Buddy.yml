@@ -108,7 +108,7 @@ extends:
               command: 'sign'
               signing_environment: 'azure-ado'
               signing_profile: 'internal_azure_service'
-              files_to_sign: 'dist\**\*;*.tgz;src\*;resources\*;config\*;*'
+              files_to_sign: '*;dist\**\*;*.tgz;src\*;resources\*;config\src\*'
               search_root: '$(Build.SourcesDirectory)'
 
           # Copying build artifacts to the Output folder
@@ -121,7 +121,6 @@ extends:
                 LICENSE.txt
                 package.json
                 README.md
-                !node_modules\**\*
               TargetFolder: '$(OUTPUTROOT)\outputs\build\build_artifacts'
 
           # Copying source artifacts to the Output folder
@@ -131,7 +130,7 @@ extends:
               SourceFolder: '$(Build.SourcesDirectory)'
               Contents: |
                 *
-                config\*
+                config\src\*
                 resources\*
                 src\*
               TargetFolder: '$(OUTPUTROOT)\outputs\build\source'

@@ -101,16 +101,6 @@ extends:
               filePath: '$(Build.SourcesDirectory)\.pipelines\package.ps1'
               workingDirectory: '$(Build.SourcesDirectory)'
 
-          # Signing the files created by the build script
-          - task: onebranch.pipeline.signing@1
-            displayName: 'Sign binaries'
-            inputs:
-              command: 'sign'
-              signing_environment: 'azure-ado'
-              signing_profile: 'internal_azure_service'
-              files_to_sign: '*;dist\**\*;*.tgz;src\*;resources\*;config\src\*'
-              search_root: '$(Build.SourcesDirectory)'
-
           # Copying build artifacts to the Output folder
           - task: CopyFiles@2
             displayName: 'Copy Dist to Output folder'
@@ -129,10 +119,17 @@ extends:
             inputs:
               SourceFolder: '$(Build.SourcesDirectory)'
               Contents: |
-                *
-                config\src\*
-                resources\*
-                src\*
+                **\*
+                !**\.git\**\*
+                !**\.pipelines\**\*
+                !**\.vscode\**\*
+                !**\test\**\*
+                !**\demo\**\*
+                !**\dist\**\*
+                !**\out\**
+                !**\*.tgz
+                !**\node_modules\**\*
+                !**\compiledTests\**\*
               TargetFolder: '$(OUTPUTROOT)\outputs\build\source'
 
           # Copying tgz package to the Output folder
@@ -143,3 +140,13 @@ extends:
               Contents: |
                 *.tgz
               TargetFolder: '$(OUTPUTROOT)\outputs\package\tgz-package'
+
+          # Signing the files created by the build script
+          - task: onebranch.pipeline.signing@1
+            displayName: 'Sign binaries'
+            inputs:
+              command: 'sign'
+              signing_environment: 'azure-ado'
+              signing_profile: 'internal_azure_service'
+              files_to_sign: '**'
+              search_root: '$(OUTPUTROOT)'

@@ -24,6 +24,10 @@ variables:
   REPOROOT: $(Build.SourcesDirectory)
   OUTPUTROOT: $(REPOROOT)\out
   NUGET_XMLDOC_MODE: skip
+  ${{ if eq(variables['Build.DefinitionName'], 'powerbi-client-react-Official') }}:
+    obpTemplate: v2/OneBranch.Official.CrossPlat.yml@templates # https://aka.ms/obpipelines/templates
+  ${{ else }}:
+    obpTemplate: v2/OneBranch.NonOfficial.CrossPlat.yml@templates # https://aka.ms/obpipelines/templates
 
   WindowsContainerImage: 'cdpxwin1809.azurecr.io/global/obinfra/windows/1809/vs2019:latest' # Docker image which is used to build the project https://aka.ms/obpipelines/containers
 
@@ -35,7 +39,7 @@ resources:
       ref: refs/heads/main
 
 extends:
-  template: v2/OneBranch.NonOfficial.CrossPlat.yml@templates # https://aka.ms/obpipelines/templates
+  template: ${{ variables.obpTemplate }}
   parameters:
     globalSdl: # https://aka.ms/obpipelines/sdl
       tsa:

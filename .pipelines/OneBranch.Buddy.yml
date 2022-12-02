@@ -141,7 +141,7 @@ extends:
                 *.tgz
               TargetFolder: '$(OUTPUTROOT)\outputs\package\tgz-package'
 
-          # Signing the files created by the build script
+          # Signing all the output files
           - task: onebranch.pipeline.signing@1
             displayName: 'Sign binaries'
             inputs:

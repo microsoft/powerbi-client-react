@@ -3,21 +3,30 @@
 
 import React, { useState } from 'react';
 import { models, Report, Embed, service, Page } from 'powerbi-client';
+import { IHttpPostMessageResponse } from 'http-post-message';
 import { PowerBIEmbed } from 'powerbi-client-react';
 import 'powerbi-report-authoring';
+
+import { sampleReportUrl } from './public/constants';
 import './DemoApp.css';
 
-// Root Component to demonstrate usage of wrapper component
+// Root Component to demonstrate usage of embedded component
 function DemoApp (): JSX.Element {
 
 	// PowerBI Report object (to be received via callback)
 	const [report, setReport] = useState<Report>();
 
-	// API end-point url to get embed config for a sample report
-	const sampleReportUrl = 'https://playgroundbe-bck-1.azurewebsites.net/Reports/SampleReport';
+	// Track Report embedding status
+	const [isEmbedded, setIsEmbedded] = useState<boolean>(false);
 
-	// Report config useState hook
-	// Values for properties like embedUrl, accessToken and settings will be set on click of buttons below
+    // Overall status message of embedding
+	const [displayMessage, setMessage] = useState(`The report is bootstrapped. Click the Embed Report button to set the access token`);
+
+	// CSS Class to be passed to the embedded component
+	const reportClass = 'report-container';
+
+	// Pass the basic embed configurations to the embedded component to bootstrap the report on first load
+    // Values for properties like embedUrl, accessToken and settings will be set on click of button
 	const [sampleReportConfig, setReportConfig] = useState<models.IReportEmbedConfiguration>({
 		type: 'report',
 		embedUrl: undefined,
@@ -26,170 +35,215 @@ function DemoApp (): JSX.Element {
 		settings: undefined,
 	});
 
-	// Map of event handlers to be applied to the embedding report
-	const eventHandlersMap = new Map([
-		['loaded', function () {
-			console.log('Report has loaded');
-		}],
-		['rendered', function () {
-			console.log('Report has rendered');
-			
-			// Update display message
-			setMessage('The report is rendered')
-		}],
-		['error', function (event?: service.ICustomEvent<any>) { 
-			if (event) {
-				console.error(event.detail);
-			}
-		}]
-	]);
-	
-	// Fetch sample report's config (eg. embedUrl and AccessToken) for embedding
-	const mockSignIn = async () => {
+	/**
+	 * Map of event handlers to be applied to the embedded report
+	 * Update event handlers for the report by redefining the map using the setEventHandlersMap function
+	 * Set event handler to null if event needs to be removed
+	 * More events can be provided from here
+	 * https://docs.microsoft.com/en-us/javascript/api/overview/powerbi/handle-events#report-events
+	 */
+	const[eventHandlersMap, setEventHandlersMap] = useState<Map<string, (event?: service.ICustomEvent<any>, embeddedEntity?: Embed) => void | null>>(new Map([
+		['loaded', () => console.log('Report has loaded')],
+		['rendered', () => console.log('Report has rendered')],
+		['error', (event?: service.ICustomEvent<any>) => {
+				if (event) {
+					console.error(event.detail);
+				}
+			},
+		],
+		['visualClicked', () => console.log('visual clicked')],
+		['pageChanged', (event) => console.log(event)],
+	]));
 
-		// Fetch sample report's embed config
+    /**
+     * Embeds report
+     *
+     * @returns Promise<void>
+     */
+	const embedReport = async (): Promise<void> => {
+		console.log('Embed Report clicked');
+
+		// Get the embed config from the service
 		const reportConfigResponse = await fetch(sampleReportUrl);
-		
-		if (!reportConfigResponse.ok) {
+
+		if (reportConfigResponse === null) {
+			return;
+		}
+
+		if (!reportConfigResponse?.ok) {
 			console.error(`Failed to fetch config for report. Status: ${ reportConfigResponse.status } ${ reportConfigResponse.statusText }`);
 			return;
 		}
 
 		const reportConfig = await reportConfigResponse.json();
 
-		// Update display message
-		setMessage('The access token is successfully set. Loading the Power BI report')
-
-		// Set the fetched embedUrl and embedToken in the report config
+		// Update the reportConfig to embed the PowerBI report
 		setReportConfig({
 			...sampleReportConfig,
 			embedUrl: reportConfig.EmbedUrl,
 			accessToken: reportConfig.EmbedToken.Token
 		});
+		setIsEmbedded(true);
+
+		// Update the display message
+		setMessage('Use the buttons above to interact with the report using Power BI Client APIs.');
 	};
 
-	const changeSettings = () => {
-
-		// Update the state "sampleReportConfig" and re-render DemoApp component
-		setReportConfig({
-			...sampleReportConfig,
-			settings: {
-				panes: {
-					filters: {
-						expanded: false,
-						visible: false
-					}
-				}
-			}
-		});
-	};
-
-	// Delete the first visual using powerbi-report-authoring library
-	const deleteVisual = async () => {
-
+    /**
+     * Hide Filter Pane
+     *
+     * @returns Promise<IHttpPostMessageResponse<void> | undefined>
+     */
+	const hideFilterPane = async (): Promise<IHttpPostMessageResponse<void> | undefined>  => {
+		// Check if report is available or not
 		if (!report) {
-			console.log('Report not available');
+			setDisplayMessageAndConsole('Report not available');
 			return;
 		}
 
-		const activePage = await getActivePage(report);
+		// New settings to hide filter pane
+		const settings = {
+			panes: {
+				filters: {
+					expanded: false,
+					visible: false,
+				},
+			},
+		};
+
+		try {
+			const response: IHttpPostMessageResponse<void> = await report.updateSettings(settings);
+
+			// Update display message
+			setDisplayMessageAndConsole('Filter pane is hidden.');
+			return response;
+		} catch (error) {
+			console.error(error);
+			return;
+		}
+	};
+
+    /**
+     * Set data selected event
+     *
+     * @returns void
+     */
+	const setDataSelectedEvent = () => {
+		setEventHandlersMap(new Map<string, (event?: service.ICustomEvent<any>, embeddedEntity?: Embed) => void | null> ([
+			...eventHandlersMap,
+			['dataSelected', (event) => console.log(event)],
+		]));
+
+		setMessage('Data Selected event set successfully. Select data to see event in console.');
+	}
+
+    /**
+     * Change visual type
+     *
+     * @returns Promise<void>
+     */
+	const changeVisualType = async (): Promise<void> => {
+		// Check if report is available or not
+		if (!report) {
+			setDisplayMessageAndConsole('Report not available');
+			return;
+		}
+
+		// Get active page of the report
+		const activePage: Page | undefined = await report.getActivePage();
 
 		if (!activePage) {
-			console.log('No active page');
-			return;
-		}
-
-		// Get all visuals in the active page
-		const visuals = await activePage.getVisuals();
-
-		if (visuals.length === 0) {
-			console.log('No visual left');
-			return;
-		}
-
-		// Get first visible visual
-		const visual = visuals.find((v) => {
-			return v.layout.displayState?.mode === models.VisualContainerDisplayMode.Visible;
-		});
-
-		// No visible visual found
-		if (!visual) {
-			console.log('No visible visual available to delete');
+			setMessage('No Active page found');
 			return;
 		}
 
 		try {
-			
-			// Documentation link: https://github.com/microsoft/powerbi-report-authoring/wiki/Visualization
-			// Delete the visual 
-			await activePage.deleteVisual(visual.name);
+			// Change the visual type using powerbi-report-authoring
+			// For more information: https://docs.microsoft.com/en-us/javascript/api/overview/powerbi/report-authoring-overview
+			const visual = await activePage.getVisualByName('VisualContainer6');
 
-			console.log('Visual was deleted');
+			const response = await visual.changeType('lineChart');
+
+			setDisplayMessageAndConsole(`The ${visual.type} was updated to lineChart.`);
+
+			return response;
 		}
 		catch (error) {
-			console.error(error);
+			if (error === 'PowerBIEntityNotFound') {
+				console.log('No Visual found with that name');
+			} else {
+				console.log(error);
+			}
 		}
 	};
 
-	async function getActivePage(powerbiReport: Report): Promise<Page | undefined> {
-		const pages = await powerbiReport.getPages();
-	
-		// Get the active page
-		const activePage = pages.filter(function (page) {
-			return page.isActive
-		})[0];
-
-		return activePage;
+	/**
+     * Set display message and log it in the console
+     *
+     * @returns void
+     */
+	const setDisplayMessageAndConsole = (message: string): void => {
+		setMessage(message);
+		console.log(message);
 	}
 
-	const [displayMessage, setMessage] = useState(`The report is bootstrapped. Click the Embed Report button to set the access token`);
+	const controlButtons =
+		isEmbedded ?
+		<>
+			<button onClick = { changeVisualType }>
+				Change visual type</button>
 
-	const controlButtons = 
-		<div className = "controls">
-			<button onClick = { mockSignIn }>
-				Embed Report</button>
-
-			<button onClick = { changeSettings }>
+			<button onClick = { hideFilterPane }>
 				Hide filter pane</button>
 
-			<button onClick = { deleteVisual }>
-				Delete a Visual</button>
-		</div>;
+			<button onClick = { setDataSelectedEvent }>
+				Set event</button>
 
-	const header = 
-		<div className = "header">
-			<div className = "title">Power BI React component demo</div>
-		</div>;
+			<label className = "display-message">
+				{ displayMessage }
+			</label>
+		</>
+		:
+		<>
+			<label className = "display-message position">
+				{ displayMessage }
+			</label>
 
-	const footer = 
+			<button onClick = { embedReport } className = "embed-report">
+				Embed Report</button>
+		</>;
+
+	const header =
+		<div className = "header">Power BI Embedded React Component Demo</div>;
+
+	const reportComponent =
+		<PowerBIEmbed
+			embedConfig = { sampleReportConfig }
+			eventHandlers = { eventHandlersMap }
+			cssClassName = { reportClass }
+			getEmbeddedComponent = { (embedObject: Embed) => {
+				console.log(`Embedded object of type "${ embedObject.embedtype }" received`);
+				setReport(embedObject as Report);
+			} }
+		/>;
+
+	const footer =
 		<div className = "footer">
 			<div className = "footer-text">
 				GitHub: &nbsp;
 				<a href="https://github.com/microsoft/PowerBI-client-react">https://github.com/microsoft/PowerBI-client-react</a>
 			</div>
 		</div>;
-	
+
 	return (
-		<div>
+		<div className = "container">
 			{ header }
-			
-			<PowerBIEmbed
-				embedConfig = { sampleReportConfig }
-				eventHandlers = { eventHandlersMap }
-				cssClassName = { "report-style-class" }
-				getEmbeddedComponent = { (embedObject:Embed) => {
-					console.log(`Embedded object of type "${ embedObject.embedtype }" received`);
-					setReport(embedObject as Report);
-				} }
-			/>
 
-			<div className = "hr"></div>
+			<div className = "controls">
+				{ controlButtons }
 
-			<div className = "displayMessage">
-				{ displayMessage }
+				{ isEmbedded ? reportComponent : null }
 			</div>
-
-			{ controlButtons }
 
 			{ footer }
 		</div>

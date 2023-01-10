@@ -1,7 +1,7 @@
-.report-style-class {
-	height: 69vh;
-	margin: 1% auto;
-	width: 60%;
+.report-container {
+	height: 75vh;
+	margin: 8px auto;
+	width: 90%;
 }
 
 body {
@@ -9,35 +9,49 @@ body {
 	margin: 0;
 }
 
-.header {
-	background: #3476AE 0 0 no-repeat padding-box;
-	border: 1px solid #707070;
-	height: 55px;
-	left: 0;
-	top: 0;
+.container {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
 }
 
-.displayMessage {
-	color: #000000;
-	font: normal 22px/27px Segoe UI;
-	letter-spacing: 0;
-	margin-top: 1%;
-	opacity: 1;
+.header {
+	background: #3476ae 0 0 no-repeat padding-box;
+	border: 1px solid #707070;
+	color: #ffffff;
+	font: 700 22px/27px 'Segoe UI';
+	padding: 13px 13px 13px 36px;
+	text-align: left;
+}
+
+.display-message {
+	align-items: center;
+	display: flex;
+	font: 400 18px/27px 'Segoe UI';
+	height: 30px;
+	justify-content: center;
+	margin-top: 8px;
 	text-align: center;
 }
 
-.hr {
-	border: 1px solid #E0E0E0;
-	opacity: 1;
+.position {
+	margin-top: 40vh;
+}
+
+.embed-report {
+	margin-top: 18px;
+	text-align: center;
+	margin-right: 0;
 }
 
 .controls {
-	margin-top: 1%;
+	margin-top: 20px;
 	text-align: center;
+	flex: 1;
 }
 
 .footer {
-	background: #EEF3F8 0 0 no-repeat padding-box;
+	background: #eef3f8 0 0 no-repeat padding-box;
 	bottom: 0;
 	height: 39px;
 	opacity: 1;
@@ -57,35 +71,25 @@ body {
 }
 
 .footer-text > a {
-	color: #278CE2;
+	color: #278ce2;
 	font: Regular 16px/21px Segoe UI;
 	letter-spacing: 0;
 	text-decoration: underline;
 }
 
-.title {
-	color: #FFFFFF;
-	font: Bold 22px/27px Segoe UI;
-	letter-spacing: 0;
-	margin: 13px;
-	margin-left: 36px;
-	opacity: 1;
-	text-align: left;
-}
-
 button {
-	background: #337AB7;
+	background: #337ab7;
 	border: 0;
 	border-radius: 5px;
-	color: #FFFFFF;
-	font-size: medium;
+	color: #ffffff;
+	font-size: 16px;
 	height: 35px;
 	margin-right: 15px;
-	width: 150px;
+	width: 160px;
 }
 
-button:onfocus {
-	outline: none;
+button:hover {
+  cursor: pointer;
 }
 
 iframe {

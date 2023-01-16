@@ -51,29 +51,27 @@ body {
 }
 
 .footer {
-	background: #eef3f8 0 0 no-repeat padding-box;
-	bottom: 0;
-	height: 39px;
-	opacity: 1;
-	position: absolute;
+	align-items: center;
+	background: #f7f8fa 0 0 no-repeat padding-box;
+	display: flex;
+	font: 400 16px/21px 'Segoe UI';
+	height: 42px;
+	justify-content: center;
 	width: 100%;
 }
 
-.footer-text {
-	font: Regular 16px/21px Segoe UI;
-	height: 21px;
-	letter-spacing: 0;
-	margin-top: 9px;
-	opacity: 1;
-	position: relative;
-	text-align: center;
-	width: 100%;
+.footer * {
+	padding: 0 3px;
 }
 
-.footer-text > a {
-	color: #278ce2;
-	font: Regular 16px/21px Segoe UI;
-	letter-spacing: 0;
+.footer-icon {
+	border-radius: 50%;
+	height: 22px;
+	vertical-align: middle;
+}
+
+.footer a {
+	color: #3a3a3a;
 	text-decoration: underline;
 }
 

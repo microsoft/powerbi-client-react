@@ -229,10 +229,13 @@ function DemoApp (): JSX.Element {
 
 	const footer =
 		<div className = "footer">
-			<div className = "footer-text">
-				GitHub: &nbsp;
-				<a href="https://github.com/microsoft/PowerBI-client-react">https://github.com/microsoft/PowerBI-client-react</a>
-			</div>
+			<p>This demo is powered by Power BI Embedded Analytics</p>
+			<label className = "separator-pipe">|</label>
+			<img title = "Power-BI" alt = "PowerBI_Icon" className = "footer-icon" src = "./assets/PowerBI_Icon.png" />
+			<p>Explore our<a href = "https://aka.ms/pbijs/" target = "_blank" rel = "noreferrer noopener">Playground</a></p>
+			<label className = "separator-pipe">|</label>
+			<img title = "GitHub" alt = "GitHub_Icon" className = "footer-icon" src = "./assets/GitHub_Icon.png" />
+			<p>Find the<a href = "https://github.com/microsoft/PowerBI-client-react" target = "_blank" rel = "noreferrer noopener">source code</a></p>
 		</div>;
 
 	return (

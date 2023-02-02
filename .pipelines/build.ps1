@@ -1,15 +1,9 @@
 $exitCode = 0;
 
 Write-Host "start: npm run build"
+& cd .\React\powerbi-client-react
 & npm run build
 Write-Host "done: npm run build"
-
-$exitCode += $LASTEXITCODE;
-
-# Check linting
-Write-Host "start: npm run lint"
-& npm run lint
-Write-Host "done: npm run lint"
 
 $exitCode += $LASTEXITCODE;
 

@@ -1,0 +1,21 @@
+{
+    "include": [
+		"../../src/**/*.tsx",
+		"../../src/**/*.ts"
+	],
+	"compilerOptions": {
+		"lib": ["ES2016"],
+		"target": "es5",
+		"esModuleInterop": false,
+		"allowSyntheticDefaultImports": true,
+		"strict": true,
+		"noErrorTruncation": true,
+		"module": "ES6",
+		"moduleResolution": "node",
+		"jsx": "react",
+		"sourceMap": true,
+		"noImplicitAny": true,
+		"declaration": true,
+		"outDir": "../../dist",
+	}
+}

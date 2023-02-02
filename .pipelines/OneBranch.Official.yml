@@ -76,7 +76,7 @@ extends:
           - task: npmAuthenticate@0
             displayName: 'NPM Authenticate'
             inputs:
-              workingFile: '$(Build.SourcesDirectory)\.npmrc'
+              workingFile: '$(Build.SourcesDirectory)\React\powerbi-client-react\.npmrc'
 
           - task: PowerShell@2
             displayName: 'Restore'
@@ -105,11 +105,21 @@ extends:
             inputs:
               SourceFolder: '$(Build.SourcesDirectory)'
               Contents: |
-                dist\**\*
+                React\powerbi-client-react\dist\**\*
                 LICENSE.txt
-                package.json
+                React\powerbi-client-react\package.json
                 README.md
               TargetFolder: '$(OUTPUTROOT)\outputs\build\build_artifacts'
+
+          # Copying Readme and License to the powerbi-client-react folder
+          - task: CopyFiles@2
+            displayName: 'Copy Readme and License to powerbi-client-react folder'
+            inputs:
+              SourceFolder: '$(Build.SourcesDirectory)'
+              Contents: |
+                README.md
+                LICENSE.txt
+              TargetFolder: '$(OUTPUTROOT)\outputs\build\build_artifacts\React\powerbi-client-react'
 
           # Copying source artifacts to the Output folder
           - task: CopyFiles@2
@@ -134,9 +144,9 @@ extends:
           - task: CopyFiles@2
             displayName: 'Copy tgz-package to Output folder'
             inputs:
-              SourceFolder: '$(Build.SourcesDirectory)'
+              SourceFolder: '$(Build.SourcesDirectory)\React\powerbi-client-react'
               Contents: |
-                *.tgz
+                **\*.tgz
               TargetFolder: '$(OUTPUTROOT)\outputs\package\tgz-package'
 
           # Signing the files created by the build and packaging script

@@ -13,8 +13,7 @@
 		"build:dev": "webpack --mode=development --config config/src/webpack.config.js",
 		"pretest": "webpack --config config/test/webpack.config.js",
 		"test": "karma start config/test/karma.conf.js",
-		"install:demo": "cd demo && npm install",
-		"demo": "cd demo && npm run demo",
+		"demo": "cd ../demo && npm install && npm run demo",
 		"lint": "eslint --fix src/**/*.{ts,tsx}"
 	},
 	"keywords": [

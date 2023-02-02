@@ -5,11 +5,11 @@
 **/package-lock.json
 
 # testing
-/coverage
-/compiledTests
+coverage
+compiledTests
 
 # production
-/dist
+dist
 
 # misc
 .DS_Store

@@ -163,13 +163,13 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 
 				// Set filters on the embedded report if available and different from the previous filter
 				if (filters && !isEqual(filters, prevEmbedConfig.filters)) {
-					// Upcast to Report and call updateFilters of replace filter type
+					// Upcast to Report and call updateFilters with the Replace filter operation
 					await (this.embed as Report).updateFilters(FiltersOperations.Replace, filters);
 				}
 
 				// Remove filters on the embedded report, if previously applied
 				else if (!filters && prevEmbedConfig.filters) {
-					// Upcast to Report and call updateFilters of removeAll filter type
+					// Upcast to Report and call updateFilters with the RemoveAll filter operation
 					await (this.embed as Report).updateFilters(FiltersOperations.RemoveAll);
 				}
 			} catch (err) {

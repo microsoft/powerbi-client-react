@@ -21,7 +21,7 @@ import {
 } from 'powerbi-client';
 import { ReportLevelFilters, FiltersOperations } from 'powerbi-models';
 import isEqual from 'lodash.isequal';
-import { stringifyMap } from './utils';
+import { stringifyMap, SdkType, SdkWrapperVersion } from './utils';
 
 /**
  * Type for event handler function of embedded entity
@@ -111,6 +111,8 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 				factories.wpmpFactory,
 				factories.routerFactory);
 		}
+
+		this.powerbi.setSdkInfo(SdkType, SdkWrapperVersion);
 	};
 
 	componentDidMount(): void {

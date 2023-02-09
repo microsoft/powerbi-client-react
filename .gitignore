@@ -3,6 +3,7 @@
 /.pnp
 .pnp.js
 **/package-lock.json
+**/.pipelines
 
 # testing
 /coverage

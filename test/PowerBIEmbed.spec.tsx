@@ -312,7 +312,7 @@ describe('tests of PowerBIEmbed', function () {
 
 	describe('test powerbi updating report filters', () => {
 		it('applies the updated filter', () => {
-			
+
 			// Arrange
 			let testReport: Report = undefined;
 			const config = {
@@ -324,7 +324,7 @@ describe('tests of PowerBIEmbed', function () {
 			};
 
 			testReport = renderReport(container, { type: 'report' });
-			spyOn(testReport, 'setFilters').and.callThrough();
+			spyOn(testReport, 'updateFilters').and.callThrough();
 
 			// Act
 			act(() => {
@@ -338,12 +338,12 @@ describe('tests of PowerBIEmbed', function () {
 			});
 
 			// Assert
-			expect(testReport.setFilters).toHaveBeenCalledTimes(1);
-			expect(testReport.setFilters).toHaveBeenCalledWith(config.filters);
+			expect(testReport.updateFilters).toHaveBeenCalledTimes(1);
+			expect(testReport.updateFilters).toHaveBeenCalledWith(FiltersOperations.Replace, config.filters);
 		});
 
 		it('does not apply filter if same filter is provided in the new config', () => {
-			
+
 			// Arrange
 			let testReport: Report = undefined;
 			const oldConfig = {
@@ -361,9 +361,8 @@ describe('tests of PowerBIEmbed', function () {
 
 			testReport = renderReport(container, oldConfig);
 
-			spyOn(testReport, 'setFilters').and.callThrough();
-			spyOn(testReport, 'removeFilters').and.callThrough();
-			
+			spyOn(testReport, 'updateFilters').and.callThrough();
+
 			// Act
 			act(() => {
 				ReactDOM.render(
@@ -376,12 +375,11 @@ describe('tests of PowerBIEmbed', function () {
 			});
 
 			// Assert
-			expect(testReport.setFilters).toHaveBeenCalledTimes(0);
-			expect(testReport.removeFilters).toHaveBeenCalledTimes(0);
+			expect(testReport.updateFilters).toHaveBeenCalledTimes(0);
 		});
 
 		it('calls setFilters but does not apply filters if updated filter is of type models.OnLoadFilters', () => {
-			
+
 			// Arrange
 			let testReport: Report = undefined;
 			const oldConfig: IReportEmbedConfiguration = {
@@ -401,9 +399,8 @@ describe('tests of PowerBIEmbed', function () {
 
 			testReport = renderReport(container, oldConfig);
 
-			spyOn(testReport, 'setFilters').and.callThrough();
-			spyOn(testReport, 'removeFilters').and.callThrough();
-			
+			spyOn(testReport, 'updateFilters').and.callThrough();
+
 			// Act
 			act(() => {
 				ReactDOM.render(
@@ -416,8 +413,7 @@ describe('tests of PowerBIEmbed', function () {
 			});
 
 			// Assert
-			expect(testReport.setFilters).toHaveBeenCalledTimes(1);
-			expect(testReport.removeFilters).toHaveBeenCalledTimes(0);
+			expect(testReport.updateFilters).toHaveBeenCalledTimes(1);
 		});
 
 		it('removes the filters if the filters were provided in old props but removed in new props', () => {
@@ -440,8 +436,8 @@ describe('tests of PowerBIEmbed', function () {
 			};
 
 			testReport = renderReport(container, oldConfig);
-			
-			spyOn(testReport, 'removeFilters').and.callThrough();
+
+			spyOn(testReport, 'updateFilters').and.callThrough();
 
 			// Act
 			// Remove any applied filters via props
@@ -456,7 +452,8 @@ describe('tests of PowerBIEmbed', function () {
 			});
 
 			// Assert
-			expect(testReport.removeFilters).toHaveBeenCalledTimes(1);
+			expect(testReport.updateFilters).toHaveBeenCalledTimes(1);
+			expect(testReport.updateFilters).toHaveBeenCalledWith(FiltersOperations.RemoveAll);
 		});
 	});
 
@@ -472,7 +469,7 @@ describe('tests of PowerBIEmbed', function () {
 				accessToken: 'fakeToken',
 				pageName: 'fakePage',
 			};
-			
+
 			testReport = renderReport(container, { type: 'report' });
 			spyOn(testReport, 'setPage').and.callThrough();
 
@@ -486,7 +483,7 @@ describe('tests of PowerBIEmbed', function () {
 						}}
 					/>, container);
 			});
-			
+
 			// Assert
 			expect(testReport.setPage).toHaveBeenCalledTimes(1);
 			expect(testReport.setPage).toHaveBeenCalledWith(config.pageName);
@@ -505,7 +502,7 @@ describe('tests of PowerBIEmbed', function () {
 
 			testReport = renderReport(container, { type: 'report' });
 			spyOn(testReport, 'setPage').and.callThrough();
-			
+
 			// Act
 			act(() => {
 				ReactDOM.render(
@@ -540,7 +537,7 @@ describe('tests of PowerBIEmbed', function () {
 			testReport = renderReport(container, oldConfig);
 
 			spyOn(testReport, 'setPage').and.callThrough();
-			
+
 			// Act
 			act(() => {
 				ReactDOM.render(

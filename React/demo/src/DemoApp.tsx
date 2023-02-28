@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { models, Report, Embed, service, Page } from 'powerbi-client';
 import { IHttpPostMessageResponse } from 'http-post-message';
 import { PowerBIEmbed } from 'powerbi-client-react';
@@ -54,6 +54,12 @@ function DemoApp (): JSX.Element {
 		['visualClicked', () => console.log('visual clicked')],
 		['pageChanged', (event) => console.log(event)],
 	]));
+
+	useEffect(() => {
+		if (report) {
+			report.setComponentTitle('Embedded Report');
+		}
+	}, [report]);
 
     /**
      * Embeds report

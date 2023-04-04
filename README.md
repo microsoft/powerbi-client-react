@@ -1,5 +1,5 @@
 # powerbi-client-react
-Power BI React component. This library lets you embed Power BI report, dashboard, dashboard tile, report visual, Q&A or paginated report in your React application.
+Power BI React component. This library enables you to embed Power BI reports, dashboards, dashboard tiles, report visuals, Q&A or paginated reports in your React application, and to create new Power BI reports directly in your application.
 
 ## Quick Start
 
@@ -13,7 +13,7 @@ import { PowerBIEmbed } from 'powerbi-client-react';
 ```jsx
 <PowerBIEmbed
 	embedConfig = {{
-		type: 'report',   // Supported types: report, dashboard, tile, visual, qna and paginated report
+		type: 'report',   // Supported types: report, dashboard, tile, visual, qna, paginated report and create
 		id: '<Report Id>',
 		embedUrl: '<Embed Url>',
 		accessToken: '<Access Token>',
@@ -91,7 +91,8 @@ Redirect to http://localhost:8080/ to view in the browser.
 |Using with PowerBI Report Authoring|1. Install [powerbi-report-authoring](https://www.npmjs.com/package/powerbi-report-authoring) as npm dependency.<br>2. Use the report authoring APIs using the embedded report's instance|
 |Phased embedding (Report type only)|Set phasedEmbedding prop's value as `true` <br/> Refer to [Phased embedding docs](https://learn.microsoft.com/javascript/api/overview/powerbi/phased-embedding).|
 |Apply Filters (Report type only)|1. To apply updated filters, update filters in _embedConfig_ props.<br/>2. To remove the applied filters, update the _embedConfig_ prop with the filters removed or set as undefined/null.|
-|Set Page (Report type only)|To set a page when embedding a report or on an embedded report, provide pageName field in the _embedConfig_.
+|Set Page (Report type only)|To set a page when embedding a report or on an embedded report, provide pageName field in the _embedConfig_.|
+|Create report|To create a new report, pass the component with at least _type_, _embedUrl_ and _datasetId_ in _embedConfig_ prop.|
 
 __Note__: To use this library in IE browser, use [react-app-polyfill](https://www.npmjs.com/package/react-app-polyfill) to add support for the incompatible features. Refer to the imports of [demo/index.tsx](https://github.com/microsoft/powerbi-client-react/blob/master/demo/index.tsx).
 
@@ -109,6 +110,7 @@ interface EmbedProps {
 		| IQnaEmbedConfiguration
 		| IVisualEmbedConfiguration
 		| IEmbedConfiguration
+		| IReportCreateConfiguration
 
 	// Callback method to get the embedded PowerBI entity object (optional)
 	getEmbed?: { (embeddedComponent: Embed): void }

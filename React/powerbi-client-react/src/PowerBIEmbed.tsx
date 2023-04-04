@@ -19,7 +19,7 @@ import {
 	IDashboardEmbedConfiguration,
 	ITileEmbedConfiguration,
 } from 'powerbi-client';
-import { ReportLevelFilters, FiltersOperations } from 'powerbi-models';
+import { IReportCreateConfiguration, ReportLevelFilters, FiltersOperations } from 'powerbi-models';
 import isEqual from 'lodash.isequal';
 import { stringifyMap, SdkType, SdkWrapperVersion } from './utils';
 
@@ -37,12 +37,13 @@ export interface EmbedProps {
 
 	// Configuration for embedding the PowerBI entity (Required)
 	embedConfig:
-	| IReportEmbedConfiguration
-	| IDashboardEmbedConfiguration
-	| ITileEmbedConfiguration
-	| IQnaEmbedConfiguration
-	| IVisualEmbedConfiguration
-	| IEmbedConfiguration;
+		| IReportEmbedConfiguration
+		| IDashboardEmbedConfiguration
+		| ITileEmbedConfiguration
+		| IQnaEmbedConfiguration
+		| IVisualEmbedConfiguration
+		| IEmbedConfiguration
+		| IReportCreateConfiguration;
 
 	// Callback method to get the embedded PowerBI entity object (Optional)
 	getEmbeddedComponent?: { (embeddedComponent: Embed): void };
@@ -61,6 +62,7 @@ export interface EmbedProps {
 }
 
 export enum EmbedType {
+	Create = 'create',
 	Report = 'report',
 	Dashboard = 'dashboard',
 	Tile = 'tile',
@@ -213,18 +215,24 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 			if (this.props.phasedEmbedding) {
 				console.error(`Phased embedding is not supported for type ${this.props.embedConfig.type}`)
 			}
-			this.embed = this.powerbi.embed(this.containerRef.current, this.props.embedConfig);
+
+			if (this.props.embedConfig.type === EmbedType.Create) {
+				this.embed = this.powerbi.createReport(this.containerRef.current, this.props.embedConfig as IReportCreateConfiguration);
+			}
+			else {
+				this.embed = this.powerbi.embed(this.containerRef.current, this.props.embedConfig);
+			}
 		}
 	}
 
 	/**
-	 * When component updates, choose to _embed_ the powerbi entity or _update the accessToken_ in the embedded entity 
+	 * When component updates, choose to _embed_ the powerbi entity or _update the accessToken_ in the embedded entity
 	 * or do nothing if the embedUrl and accessToken did not update in the new props
-	 * 
+	 *
 	 * @param prevProps EmbedProps
 	 * @returns void
 	 */
-	private embedOrUpdateAccessToken(prevProps: EmbedProps): void {
+	private async embedOrUpdateAccessToken(prevProps: EmbedProps): Promise<void> {
 
 		// Check if Embed URL and Access Token are present in current props
 		if (!this.props.embedConfig.accessToken || !this.props.embedConfig.embedUrl) {
@@ -249,16 +257,17 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 			this.props.embedConfig.embedUrl === prevProps.embedConfig.embedUrl &&
 			this.embed
 		) {
-			this.embed.setAccessToken(this.props.embedConfig.accessToken)
-				.catch((error) => {
-					console.error(`setAccessToken error: ${error}`);
-				});
+			try {
+				await this.embed.setAccessToken(this.props.embedConfig.accessToken);
+			} catch(error) {
+				console.error("setAccessToken error:\n", error);
+			}
 		}
 	}
 
 	/**
 	 * Sets all event handlers from the props on the embedded entity
-	 * 
+	 *
 	 * @param embed Embedded object
 	 * @param eventHandlers Array of eventhandlers to be set on embedded entity
 	 * @returns void
@@ -285,20 +294,22 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 
 		// Append entity specific events
 		switch (entityType) {
+			case EmbedType.Create:
+				break;
 			case EmbedType.Report:
-				allowedEvents = [...allowedEvents, ...Report.allowedEvents]
+				allowedEvents = [...allowedEvents, ...Report.allowedEvents];
 				break;
 			case EmbedType.Dashboard:
-				allowedEvents = [...allowedEvents, ...Dashboard.allowedEvents]
+				allowedEvents = [...allowedEvents, ...Dashboard.allowedEvents];
 				break;
 			case EmbedType.Tile:
-				allowedEvents = [...allowedEvents, ...Tile.allowedEvents]
+				allowedEvents = [...allowedEvents, ...Tile.allowedEvents];
 				break;
 			case EmbedType.Qna:
-				allowedEvents = [...allowedEvents, ...Qna.allowedEvents]
+				allowedEvents = [...allowedEvents, ...Qna.allowedEvents];
 				break;
 			case EmbedType.Visual:
-				allowedEvents = [...allowedEvents, ...Visual.allowedEvents]
+				allowedEvents = [...allowedEvents, ...Visual.allowedEvents];
 				break;
 			default:
 				console.error(`Invalid embed type ${entityType}`);
@@ -339,7 +350,7 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 
 	/**
 	 * Returns the embedded object via _getEmbed_ callback method provided in props
-	 * 
+	 *
 	 * @returns void
 	 */
 	private invokeGetEmbedCallback(): void {
@@ -350,7 +361,7 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 
 	/**
 	 * Update settings from props of the embedded artifact
-	 * 
+	 *
 	 * @returns void
 	 */
 	private async updateSettings(): Promise<void> {

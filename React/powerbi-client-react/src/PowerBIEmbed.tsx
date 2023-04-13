@@ -12,14 +12,13 @@ import {
 	Qna,
 	Visual,
 	IEmbedSettings,
-	IEmbedConfiguration,
 	IQnaEmbedConfiguration,
 	IVisualEmbedConfiguration,
 	IReportEmbedConfiguration,
 	IDashboardEmbedConfiguration,
 	ITileEmbedConfiguration,
 } from 'powerbi-client';
-import { IReportCreateConfiguration, ReportLevelFilters, FiltersOperations } from 'powerbi-models';
+import { IReportCreateConfiguration, IPaginatedReportLoadConfiguration, ReportLevelFilters, FiltersOperations } from 'powerbi-models';
 import isEqual from 'lodash.isequal';
 import { stringifyMap, SdkType, SdkWrapperVersion } from './utils';
 
@@ -42,7 +41,7 @@ export interface EmbedProps {
 		| ITileEmbedConfiguration
 		| IQnaEmbedConfiguration
 		| IVisualEmbedConfiguration
-		| IEmbedConfiguration
+		| IPaginatedReportLoadConfiguration
 		| IReportCreateConfiguration;
 
 	// Callback method to get the embedded PowerBI entity object (Optional)

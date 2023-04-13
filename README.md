@@ -109,7 +109,7 @@ interface EmbedProps {
 		| ITileEmbedConfiguration
 		| IQnaEmbedConfiguration
 		| IVisualEmbedConfiguration
-		| IEmbedConfiguration
+		| IPaginatedReportLoadConfiguration
 		| IReportCreateConfiguration
 
 	// Callback method to get the embedded PowerBI entity object (optional)

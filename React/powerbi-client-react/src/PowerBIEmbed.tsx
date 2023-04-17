@@ -186,6 +186,9 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 		if (this.containerRef.current) {
 			this.powerbi.reset(this.containerRef.current);
 		}
+
+		// Set the previous event handler map string to empty
+		this.prevEventHandlerMapString = '';
 	};
 
 	render(): JSX.Element {

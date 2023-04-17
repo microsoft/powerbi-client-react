@@ -7,9 +7,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { act, isElement } from 'react-dom/test-utils';
 import { Report, Dashboard, service, factories, IEmbedSettings, IReportEmbedConfiguration } from 'powerbi-client';
-import { PowerBIEmbed } from '../src/PowerBIEmbed';
 import { mockPowerBIService, mockedMethods } from "./mockService";
 import { IBasicFilter, FilterType, FiltersOperations } from 'powerbi-models';
+
+import { PowerBIEmbed } from '../src/PowerBIEmbed';
+import { stringifyMap } from '../src/utils';
 
 // Use this function to render powerbi entity with only config
 function renderReport(container: HTMLDivElement, config) {
@@ -944,6 +946,39 @@ describe('tests of PowerBIEmbed', function () {
 	});
 
 	describe('tests for setting event handlers', () => {
+		it('test event handlers are setting when remounting twice', () => {
+			// Arrange
+			const eventHandlers = new Map([
+				['loaded', function () { }],
+				['rendered', function () { }],
+				['error', function () { }]
+			]);
+
+			const powerbi = new service.Service(
+				factories.hpmFactory,
+				factories.wpmpFactory,
+				factories.routerFactory);
+			const embed = powerbi.bootstrap(container, { type: 'report' });
+
+			// Act
+			const powerbiembed = new PowerBIEmbed({
+				embedConfig: { type: 'report' },
+				eventHandlers: eventHandlers
+			});
+
+			// Ignoring next line as setEventHandlers is a private method
+			// @ts-ignore
+			powerbiembed.setEventHandlers(embed, eventHandlers);
+			powerbiembed.componentWillUnmount();
+			expect((powerbiembed as any).prevEventHandlerMapString).toBe('');
+			powerbiembed.componentDidMount();
+			// @ts-ignore
+			powerbiembed.setEventHandlers(embed, eventHandlers);
+
+			// Assert
+			expect((powerbiembed as any).prevEventHandlerMapString).toBe(stringifyMap(eventHandlers));
+		});
+
 		it('clears and sets the event handlers', () => {
 
 			// Arrange

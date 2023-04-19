@@ -44,4 +44,4 @@ export function stringifyMap(map: EmbedProps['eventHandlers']): string {
 
 // SDK information to be used with service instance
 export const SdkType = "powerbi-client-react";
-export const SdkWrapperVersion = "1.3.5";
+export const SdkWrapperVersion = "1.4.0";

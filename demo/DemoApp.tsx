@@ -120,7 +120,7 @@ function DemoApp (): JSX.Element {
 
 		try {
 			
-			// Documentation link: https://github.com/microsoft/powerbi-report-authoring/wiki/Visualization
+			// Documentation link: https://learn.microsoft.com/en-us/javascript/api/overview/powerbi/remove-visual
 			// Delete the visual 
 			await activePage.deleteVisual(visual.name);
 

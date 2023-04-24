@@ -86,7 +86,7 @@ Redirect to http://localhost:8080/ to view in the browser.
 |Update settings (Report type only)|To update the report settings, update the _embedConfig.settings_ property of props.<br/>Refer to the _embedConfig.settings_ prop in [Quick Start](#quick-start).<br/>__Note__: Update the settings only by updating embedConfig prop|
 |Bootstrap Power BI|To [bootstrap your powerbi entity](https://aka.ms/PbieBootstrap), pass the props to the component without _accessToken_ in _embedConfig_.<br/>__Note__: _embedConfig_ of props should atleast contain __type__ of the powerbi entity being embedded. <br/>Available types: "report", "dashboard", "tile", "visual" and "qna".<br/>Refer to _How to bootstrap a report_ section in [Quick Start](#quick-start).|
 |Using with PowerBI Report Authoring|1. Install [powerbi-report-authoring](https://www.npmjs.com/package/powerbi-report-authoring) as npm dependency.<br>2. Use the report authoring APIs using the embedded report's instance|
-|Phased embedding (Report type only)|Set phasedEmbedding prop's value as `true` <br/> Refer to [Phased embedding docs](https://github.com/microsoft/PowerBI-JavaScript/wiki/Phased-Embedding).|
+|Phased embedding (Report type only)|Set phasedEmbedding prop's value as `true` <br/> Refer to [Phased embedding docs](https://learn.microsoft.com/en-us/javascript/api/overview/powerbi/phased-embedding).|
 |Apply Filters (Report type only)|1. To apply updated filters, update filters in _embedConfig_ props.<br/>2. To remove the applied filters, update the _embedConfig_ prop with the filters removed or set as undefined/null.|
 |Set Page (Report type only)|To set a page when embedding a report or on an embedded report, provide pageName field in the _embedConfig_. 
 

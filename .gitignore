@@ -3,14 +3,13 @@
 /.pnp
 .pnp.js
 **/package-lock.json
-**/.pipelines
 
 # testing
-/coverage
-/compiledTests
+coverage
+compiledTests
 
 # production
-/dist
+dist
 
 # misc
 .DS_Store

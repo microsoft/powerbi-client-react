@@ -1,6 +1,6 @@
 {
 	"name": "powerbi-client-react",
-	"version": "1.3.5",
+	"version": "1.4.0",
 	"description": "React wrapper for powerbi-client library",
 	"main": "dist/powerbi-client-react.js",
 	"types": "dist/powerbi-client-react.d.ts",
@@ -13,8 +13,7 @@
 		"build:dev": "webpack --mode=development --config config/src/webpack.config.js",
 		"pretest": "webpack --config config/test/webpack.config.js",
 		"test": "karma start config/test/karma.conf.js",
-		"install:demo": "cd demo && npm install",
-		"demo": "cd demo && npm run demo",
+		"demo": "cd ../demo && npm install && npm run demo",
 		"lint": "eslint --fix src/**/*.{ts,tsx}"
 	},
 	"keywords": [
@@ -41,8 +40,8 @@
 		"@types/node": "^14.0.5",
 		"@types/react": "^16.9.35",
 		"@types/react-dom": "^16.9.8",
-		"@typescript-eslint/eslint-plugin": "^3.1.0",
-		"@typescript-eslint/parser": "^3.0.2",
+		"@typescript-eslint/eslint-plugin": "^5.42.0",
+		"@typescript-eslint/parser": "^5.42.0",
 		"eslint": "^7.4.0",
 		"eslint-plugin-react": "^7.20.0",
 		"jasmine-core": "^3.5.0",
@@ -52,8 +51,8 @@
 		"react": "^16.13.1",
 		"react-app-polyfill": "^1.0.6",
 		"react-dom": "^16.13.1",
-		"ts-loader": "^7.0.5",
-		"typescript": "^3.9.6",
+		"ts-loader": "^9.4.1",
+		"typescript": "^4.8.4",
 		"webpack": "^5.71.0",
 		"webpack-cli": "^4.9.2"
 	}

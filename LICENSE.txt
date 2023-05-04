@@ -1,3 +1,5 @@
+powerbi-client-react
+
 Copyright (c) Microsoft Corporation.
 
 MIT License

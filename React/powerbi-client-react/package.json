@@ -29,7 +29,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"lodash.isequal": "^4.5.0",
-		"powerbi-client": "^2.21.1"
+		"powerbi-client": "^2.23.1"
 	},
 	"peerDependencies": {
 		"react": ">= 16"

@@ -278,7 +278,7 @@ describe('tests of PowerBIEmbed', function () {
 		let config = {
 			type: 'report',
 			id: 'fakeId',
-			embedUrl: 'fakeUrl',
+			embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 			accessToken: 'fakeToken'
 		};
 
@@ -286,7 +286,7 @@ describe('tests of PowerBIEmbed', function () {
 		let newConfig = {
 			type: 'report',
 			id: 'fakeId',
-			embedUrl: 'fakeUrl',
+			embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 			accessToken: 'newfakeToken'
 		};
 
@@ -320,7 +320,7 @@ describe('tests of PowerBIEmbed', function () {
 			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken',
 				filters: [filter],
 			};
@@ -351,7 +351,7 @@ describe('tests of PowerBIEmbed', function () {
 			const oldConfig = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken',
 				filters: [filter]
 			};
@@ -387,7 +387,7 @@ describe('tests of PowerBIEmbed', function () {
 			const oldConfig: IReportEmbedConfiguration = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken',
 				filters: {}
 			};
@@ -425,7 +425,7 @@ describe('tests of PowerBIEmbed', function () {
 			const oldConfig = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken',
 				filters: [filter],
 			};
@@ -433,7 +433,7 @@ describe('tests of PowerBIEmbed', function () {
 			const newConfig = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/newFakeEmbedUrl',
 				accessToken: 'fakeToken',
 			};
 
@@ -467,7 +467,7 @@ describe('tests of PowerBIEmbed', function () {
 			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken',
 				pageName: 'fakePage',
 			};
@@ -498,7 +498,7 @@ describe('tests of PowerBIEmbed', function () {
 			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken',
 			};
 
@@ -527,7 +527,7 @@ describe('tests of PowerBIEmbed', function () {
 			const oldConfig = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken',
 				pageName: 'fakePage'
 			};
@@ -564,7 +564,7 @@ describe('tests of PowerBIEmbed', function () {
 			let config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken'
 			};
 
@@ -588,7 +588,7 @@ describe('tests of PowerBIEmbed', function () {
 			let config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl'
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl'
 			};
 
 			// Act
@@ -611,13 +611,13 @@ describe('tests of PowerBIEmbed', function () {
 			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: null
 			};
 			const newConfig = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/newFakeEmbedUrl',
 				accessToken: 'fakeToken'
 			};
 
@@ -658,13 +658,13 @@ describe('tests of PowerBIEmbed', function () {
 			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken',
 			};
 			const newConfig = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken',
 				settings: { filterPaneEnabled: false }
 			};
@@ -702,7 +702,7 @@ describe('tests of PowerBIEmbed', function () {
 			let config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken'
 			};
 
@@ -729,7 +729,7 @@ describe('tests of PowerBIEmbed', function () {
 			let config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken'
 			};
 
@@ -742,7 +742,7 @@ describe('tests of PowerBIEmbed', function () {
 			});
 
 			// Embed URL of different report
-			config.embedUrl = 'newFakeUrl';
+			config.embedUrl = 'https://app.powerbi.com/newFakeEmbedUrl';
 
 			// Act
 			act(() => {
@@ -763,7 +763,7 @@ describe('tests of PowerBIEmbed', function () {
 			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken'
 			};
 
@@ -793,7 +793,7 @@ describe('tests of PowerBIEmbed', function () {
 			const config = {
 				type: 'dashboard',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken'
 			};
 
@@ -823,7 +823,7 @@ describe('tests of PowerBIEmbed', function () {
 			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken'
 			};
 
@@ -853,7 +853,7 @@ describe('tests of PowerBIEmbed', function () {
 			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken'
 			};
 
@@ -890,7 +890,7 @@ describe('tests of PowerBIEmbed', function () {
 						embedConfig={{
 							type: 'report',
 							id: 'fakeId',
-							embedUrl: 'fakeUrl',
+							embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 							accessToken: 'fakeToken'
 						}}
 						getEmbeddedComponent={mockgetEmbeddedComponent}
@@ -911,7 +911,7 @@ describe('tests of PowerBIEmbed', function () {
 						embedConfig={{
 							type: 'report',
 							id: 'fakeId',
-							embedUrl: 'fakeUrl',
+							embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 							accessToken: 'fakeToken'
 						}}
 						getEmbeddedComponent={mockgetEmbeddedComponent}
@@ -926,7 +926,7 @@ describe('tests of PowerBIEmbed', function () {
 						embedConfig={{
 							type: 'report',
 							id: 'fakeId',
-							embedUrl: 'fakeUrl',
+							embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 							accessToken: 'fakeToken',
 							settings: {
 								panes: {

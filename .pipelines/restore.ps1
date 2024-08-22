@@ -12,7 +12,7 @@ Write-Host "Global npm version"
 $exitCode = 0;
 
 Write-Host "start: try install latest npm version"
-& npm install npm@latest -g
+& npm install npm@latest -g --globalconfig "$env:REPOROOT\react\.npmrc"
 Write-Host "done: try install latest npm version"
 
 # Do not update $exitCode because we do not want to fail if install latest npm version fails.

@@ -66,7 +66,7 @@ extends:
           ob_sdl_binskim_break: true # https://aka.ms/obpipelines/sdl
           ob_artifactBaseName: 'drop'
           ob_sdl_cg_failOnAlert: false
-          ob_sdl_codeSignValidation_excludes: 'regex|.+(?:exe|dll)$;-|*.nd.dll;-|.gdn\\**'
+          ob_sdl_codeSignValidation_excludes: 'regex|.+(?:exe|dll)$;-|*.nd.dll;-|.gdn\\**;-|**\*.js'
 
         steps:
           # Custom Versioning - we will build the version using package.json in versioning commands

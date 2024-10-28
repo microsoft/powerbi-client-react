@@ -19,7 +19,7 @@ body {
 }
 
 .header {
-	background: #3476ae 0 0 no-repeat padding-box;
+	background: #117865 0 0 no-repeat padding-box;
 	border: 1px solid #707070;
 	color: #ffffff;
 	font: 700 22px/27px 'Segoe UI';
@@ -79,18 +79,15 @@ body {
 }
 
 button {
-	background: #337ab7;
+	background: #117865;
 	border: 0;
 	border-radius: 5px;
 	color: #ffffff;
 	font-size: 16px;
 	height: 35px;
-	margin-right: 15px;
-	width: 160px;
-}
-
-button:hover {
-  cursor: pointer;
+	margin-right: 10px;
+	width: 202px;
+	cursor: pointer;
 }
 
 iframe {

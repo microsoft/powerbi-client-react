@@ -1,0 +1,111 @@
+/* Copyright (c) Microsoft Corporation.
+Licensed under the MIT License. */
+
+p {
+    text-align: start;
+    margin: 10px 0
+}
+
+span {
+    font-weight: 500;
+}
+
+.dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: start;
+}
+
+.dialog-title {
+    margin: 10px 0;
+}
+
+.close-icon-button {
+    background: none;
+    color: #000000;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0;
+    margin-right: 0;
+}
+
+.dialog-main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.dialog-field {
+    width: 100%;
+    margin: 5px 0;
+}
+
+.dialog-buttons {
+    display: flex;
+    margin: 15px 0;
+    justify-content: flex-end;
+    background-color: none;
+    border:none;
+}
+
+fluent-button.run-button::part(control) {
+    background-color: transparent !important;
+    color: #000000;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+fluent-button.run-button.active::part(control) {
+    background-color: #117865 !important;
+    color: #ffffff !important;
+}
+
+fluent-button.close-button::part(control) {
+    background-color: #ffffff;
+    color: black;
+    border: 1px solid #e0e0e0;
+    cursor: pointer;
+}
+
+.close-button::part(control){
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+}
+
+.run-button {
+    margin: 0 10px;
+}
+
+fluent-dialog::part(control) {
+    width: auto;
+    height: auto;
+    padding: 24px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    --neutral-fill-rest: transparent;
+    --neutral-stroke-control-rest: transparent;
+    --neutral-fill-hover: none;
+}
+
+fluent-text-field::part(control) {
+    height: 28px;
+    border: 1px solid #8A8886;
+    border-radius: 2px;
+    font-size: 16px;
+    width: -webkit-fill-available;
+}
+
+fluent-button::part(control){
+    width: 88px;
+    height: 35px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+}

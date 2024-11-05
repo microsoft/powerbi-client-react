@@ -33,7 +33,7 @@ variables:
     obpTemplate: v2/OneBranch.Official.CrossPlat.yml@templates # https://aka.ms/obpipelines/templates
   ${{ else }}:
     obpTemplate: v2/OneBranch.NonOfficial.CrossPlat.yml@templates # https://aka.ms/obpipelines/templates
-  WindowsContainerImage: 'onebranch.azurecr.io/windows/ltsc2019/vse2022:latest' # Docker image which is used to build the project https://aka.ms/obpipelines/containers
+  WindowsContainerImage: 'onebranch.azurecr.io/windows/ltsc2022/vse2022:latest' # Docker image which is used to build the project https://aka.ms/obpipelines/containers
 
 resources:
   repositories:
@@ -53,6 +53,9 @@ extends:
           enabled: true
       cg:
         failOnAlert: false
+    featureFlags:
+      WindowsHostVersion: 1ESWindows2022
+
 
     stages:
     - stage: build

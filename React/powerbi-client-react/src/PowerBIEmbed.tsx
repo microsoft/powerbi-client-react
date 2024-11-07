@@ -25,9 +25,7 @@ import { stringifyMap, SdkType, SdkWrapperVersion } from './utils';
 /**
  * Type for event handler function of embedded entity
  */
-export type EventHandler = {
-	(event?: service.ICustomEvent<any>, embeddedEntity?: Embed): void | null;
-};
+export type EventHandler = ((event?: service.ICustomEvent<any>, embeddedEntity?: Embed) => void) | null;
 
 /**
  * Props interface for PowerBIEmbed component

@@ -188,6 +188,10 @@ async getReportPages(): Page[] {
 ```
 
 
+## Note
+
+The library supports React applications having version **>= 18**.
+
 ## Dependencies
 
 [powerbi-client](https://www.npmjs.com/package/powerbi-client)

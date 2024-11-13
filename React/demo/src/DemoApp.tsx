@@ -24,6 +24,11 @@ function DemoApp (): JSX.Element {
 	const [isEmbedConfigDialogOpen, setIsEmbedConfigDialogOpen] = useState<boolean>(false);
 	const [isFilterPaneVisibleAndExpanded, setIsFilterPaneVisibleAndExpanded] = useState<boolean>(true);
 	const [isThemeApplied, setIsThemeApplied] = useState<boolean>(false);
+	const [isZoomedOut, setIsZoomedOut] = useState<boolean>(false);
+
+	// Constants for zoom levels
+	const zoomOutLevel = 0.5;
+	const zoomInLevel = 0.9;
 
 	// CSS Class to be passed to the embedded component
 	const reportClass = 'report-container';
@@ -86,7 +91,6 @@ function DemoApp (): JSX.Element {
  	 * @returns Promise<IHttpPostMessageResponse<void> | undefined>
  	 */
 	const toggleFilterPane = async (): Promise<IHttpPostMessageResponse<void> | undefined> => {
-		// Check if report is available or not
 		if (!report) {
 			setDisplayMessageAndConsole('Report not available');
 			return;
@@ -134,7 +138,6 @@ function DemoApp (): JSX.Element {
 	 * @returns Promise<void>
 	 */
 	const toggleTheme = async (): Promise<void> => {
-		// Check if report is available or not
 		if (!report) {
 			setDisplayMessageAndConsole('Report not available');
 			return;
@@ -154,6 +157,60 @@ function DemoApp (): JSX.Element {
 	};
 
 	/**
+	 * Toggle zoom
+	 *
+	 * @returns Promise<void>
+	 */
+	const toggleZoom = async (): Promise<void> => {
+		if (!report) {
+			setDisplayMessageAndConsole('Report not available');
+			return;
+		}
+
+		try {
+			const newZoomLevel: number = isZoomedOut ? zoomInLevel : zoomOutLevel;
+			await report.setZoom(newZoomLevel);
+			setIsZoomedOut(!isZoomedOut);
+		}
+		catch (errors) {
+			console.log(errors);
+		}
+	}
+
+	/**
+	 * Refresh report event
+	 *
+	 * @returns Promise<void>
+	 */
+	const refreshReport = async (): Promise<void> => {
+		if (!report) {
+			setDisplayMessageAndConsole('Report not available');
+			return;
+		}
+
+		try {
+			await report.refresh();
+			setDisplayMessageAndConsole('The report has been refreshed successfully.');
+		}
+		catch (error: any) {
+			setDisplayMessageAndConsole(error.detailedMessage);
+		}
+	}
+
+	/**
+	 * Full screen event
+	 */
+	const enableFullScreen = (): void => {
+		if (!report) {
+			setDisplayMessageAndConsole('Report not available');
+			return;
+		}
+
+		report.fullscreen();
+	}
+
+
+	/**
      * Set display message and log it in the console
      */
 	const setDisplayMessageAndConsole = (message: string): void => {
@@ -167,11 +224,20 @@ function DemoApp (): JSX.Element {
 			<button onClick = { toggleFilterPane }>
 				{ isFilterPaneVisibleAndExpanded ? "Hide filter pane" : "Show filter pane" }</button>
 
+			<button onClick = {toggleTheme}>
+				{ isThemeApplied ? "Reset theme" : "Set theme" }</button>
+
 			<button onClick = { setDataSelectedEvent }>
 				Set 'dataSelected' event</button>
 
-			<button onClick = {toggleTheme}>
-				{ isThemeApplied ? "Reset theme" : "Set theme" }</button>
+			<button onClick = { toggleZoom }>
+				{ isZoomedOut ? "Zoom in" : "Zoom out" }</button>
+
+			<button onClick = { refreshReport }>
+				Refresh report</button>
+
+			<button onClick = { enableFullScreen }>
+				Full screen</button>
 
 			<label className = "display-message">
 				{ displayMessage }

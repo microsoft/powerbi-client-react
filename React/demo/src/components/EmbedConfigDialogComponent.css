@@ -2,62 +2,66 @@
 Licensed under the MIT License. */
 
 p {
+    margin: 10px 0;
     text-align: start;
-    margin: 10px 0
 }
 
 span {
     font-weight: 500;
 }
 
+.close-icon-button {
+    align-items: center;
+    background: none;
+    border: none;
+    color: #000000;
+    cursor: pointer;
+    display: flex;
+    font-size: 24px;
+    justify-content: flex-end;
+    margin-right: 0;
+    padding: 0;
+}
+
+.dialog-buttons {
+    background-color: none;
+    border: none;
+    display: flex;
+    justify-content: flex-end;
+    margin: 15px 0;
+}
+
+.dialog-field {
+    margin: 5px 0;
+    width: 100%;
+}
+
 .dialog-header {
+    align-items: center;
     display: flex;
     justify-content: space-between;
-    align-items: center;
     text-align: start;
+}
+
+.dialog-main {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
 }
 
 .dialog-title {
     margin: 10px 0;
 }
 
-.close-icon-button {
-    background: none;
-    color: #000000;
-    border: none;
-    font-size: 24px;
+.run-button {
+    margin: 0 10px;
+}
+
+fluent-button.close-button::part(control) {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    color: black;
     cursor: pointer;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 0;
-    margin-right: 0;
-}
-
-.dialog-main {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.dialog-field {
-    width: 100%;
-    margin: 5px 0;
-}
-
-.dialog-buttons {
-    display: flex;
-    margin: 15px 0;
-    justify-content: flex-end;
-    background-color: none;
-    border:none;
-}
-
-fluent-button.run-button::part(control) {
-    background-color: transparent !important;
-    color: #000000;
-    border: none;
-    transition: background-color 0.3s;
 }
 
 fluent-button.run-button.active::part(control) {
@@ -65,47 +69,38 @@ fluent-button.run-button.active::part(control) {
     color: #ffffff !important;
 }
 
-fluent-button.close-button::part(control) {
-    background-color: #ffffff;
-    color: black;
-    border: 1px solid #e0e0e0;
+fluent-button.run-button::part(control) {
+    background-color: transparent !important;
+    border: none;
+    color: #000000;
+    transition: background-color 0.3s;
+}
+
+fluent-button::part(control) {
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-}
-
-.close-button::part(control){
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-}
-
-.run-button {
-    margin: 0 10px;
+    font-size: 16px;
+    font-weight: 500;
+    height: 35px;
+    width: 88px;
 }
 
 fluent-dialog::part(control) {
-    width: auto;
-    height: auto;
-    padding: 24px;
     background-color: #ffffff;
     border-radius: 8px;
+    height: auto;
+    padding: 24px;
+    width: auto;
+    --neutral-fill-hover: none;
     --neutral-fill-rest: transparent;
     --neutral-stroke-control-rest: transparent;
-    --neutral-fill-hover: none;
 }
 
 fluent-text-field::part(control) {
-    height: 28px;
-    border: 1px solid #8A8886;
+    border: 1px solid #8a8886;
     border-radius: 2px;
     font-size: 16px;
+    height: 28px;
     width: -webkit-fill-available;
-}
-
-fluent-button::part(control){
-    width: 88px;
-    height: 35px;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
 }

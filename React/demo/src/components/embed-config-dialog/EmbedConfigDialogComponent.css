@@ -21,6 +21,7 @@ span {
     justify-content: flex-end;
     margin-right: 0;
     padding: 0;
+    width: 20px;
 }
 
 .dialog-buttons {
@@ -91,7 +92,6 @@ fluent-dialog::part(control) {
     border-radius: 8px;
     height: auto;
     padding: 24px;
-    width: auto;
     --neutral-fill-hover: none;
     --neutral-fill-rest: transparent;
     --neutral-stroke-control-rest: transparent;

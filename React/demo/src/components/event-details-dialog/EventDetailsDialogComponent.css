@@ -1,0 +1,47 @@
+/* Copyright (c) Microsoft Corporation.
+Licensed under the MIT License. */
+
+h1 {
+    margin: 5px 0;
+}
+
+pre {
+    height: 348px;
+    margin: 3.5px;
+}
+
+.close-icon-button {
+    align-self: center;
+    margin-bottom: 0;
+    min-width: unset;
+}
+
+.dialog-header-event-details {
+    display: flex;
+    justify-content: space-between;
+    text-align: start;
+}
+
+.dialog-main-event-details {
+    align-items: flex-start;
+    border: 1px solid #e8e8e8;
+    display: flex;
+    flex-direction: column;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+fluent-button.event-details-close-button {
+    float: right;
+}
+
+fluent-button.event-details-close-button::part(control) {
+    border: 1px solid #e8e8e8;
+    margin-top: 8px;
+    height: 32px;
+    width: 80px;
+}
+
+fluent-dialog::part(control) {
+    min-width: 300px;
+}

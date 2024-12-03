@@ -8,7 +8,8 @@ import { PowerBIEmbed } from 'powerbi-client-react';
 import 'powerbi-report-authoring';
 
 import './DemoApp.css';
-import EmbedConfigDialog from './components/EmbedConfigDialogComponent';
+import EmbedConfigDialog from './components/embed-config-dialog/EmbedConfigDialogComponent';
+import EventDetailsDialog from './components/event-details-dialog/EventDetailsDialogComponent';
 import { sampleTheme } from './constants/constants';
 
 // Root Component to demonstrate usage of embedded component
@@ -25,6 +26,9 @@ function DemoApp (): JSX.Element {
 	const [isFilterPaneVisibleAndExpanded, setIsFilterPaneVisibleAndExpanded] = useState<boolean>(true);
 	const [isThemeApplied, setIsThemeApplied] = useState<boolean>(false);
 	const [isZoomedOut, setIsZoomedOut] = useState<boolean>(false);
+	const [isDataSelectedEvent, setIsDataSelectedEvent] = useState<boolean>(false);
+	const [isEventDetailsDialogVisible, setIsEventDetailsDialogVisible] = useState<boolean>(false);
+	const [dataSelectedEventDetails, setDataSelectedEventDetails] = useState<any>(null);
 
 	// Constants for zoom levels
 	const zoomOutLevel = 0.5;
@@ -120,16 +124,38 @@ function DemoApp (): JSX.Element {
 	};
 
 	/**
+	 * Handles the visibility and details of the data-selected event dialog.
+ 	 */
+	const dataSelectedEventDetailsDialog = (dataSelectedEventDetails: any): void => {
+		setDataSelectedEventDetails(dataSelectedEventDetails);
+		setIsEventDetailsDialogVisible(true);
+	}
+
+	/**
 	 * Set data selected event
  	 */
 	const setDataSelectedEvent = () => {
-		// Adding dataSelected event in eventHandlersMap
-		setEventHandlersMap(new Map<string, (event?: service.ICustomEvent<any>, embeddedEntity?: Embed) => void | null> ([
-			...eventHandlersMap,
-			['dataSelected', (event) => console.log(event)],
-		]));
+		const dataSelectedEvent = !isDataSelectedEvent;
+		setIsDataSelectedEvent(dataSelectedEvent);
 
-		setMessage('Data Selected event set successfully. Select data to see event in console.');
+		if(dataSelectedEvent) {
+			// Adding dataSelected event in eventHandlersMap
+			setEventHandlersMap(new Map<string, (event?: service.ICustomEvent<any>, embeddedEntity?: Embed) => void | null> ([
+				...eventHandlersMap,
+				['dataSelected', (event) => {
+					if (event?.detail.dataPoints.length) {
+						dataSelectedEventDetailsDialog(event.detail);
+					}
+				}],
+			]));
+
+			setMessage('Data Selected event has been successfully set. Click on a data point to see the details.');
+		}
+		else {
+			eventHandlersMap.delete('dataSelected');
+			report?.off('dataSelected');
+			setMessage('Data Selected event has been successfully unset.')
+		}
 	}
 
 	/**
@@ -221,23 +247,25 @@ function DemoApp (): JSX.Element {
 	const controlButtons =
 		isEmbedded ?
 		<>
-			<button onClick = { toggleFilterPane }>
-				{ isFilterPaneVisibleAndExpanded ? "Hide filter pane" : "Show filter pane" }</button>
+			<div className = "button-container">
+				<button onClick = { toggleFilterPane }>
+					{ isFilterPaneVisibleAndExpanded ? "Hide filter pane" : "Show filter pane" }</button>
 
-			<button onClick = {toggleTheme}>
-				{ isThemeApplied ? "Reset theme" : "Set theme" }</button>
+				<button onClick = {toggleTheme}>
+					{ isThemeApplied ? "Reset theme" : "Set theme" }</button>
 
-			<button onClick = { setDataSelectedEvent }>
-				Set 'dataSelected' event</button>
+				<button onClick = { setDataSelectedEvent }>
+					{ isDataSelectedEvent ? "Hide dataSelected event in dialog" : "Show dataSelected event in dialog" }</button>
 
-			<button onClick = { toggleZoom }>
-				{ isZoomedOut ? "Zoom in" : "Zoom out" }</button>
+				<button onClick = { toggleZoom }>
+					{ isZoomedOut ? "Zoom in" : "Zoom out" }</button>
 
-			<button onClick = { refreshReport }>
-				Refresh report</button>
+				<button onClick = { refreshReport }>
+					Refresh report</button>
 
-			<button onClick = { enableFullScreen }>
-				Full screen</button>
+				<button onClick = { enableFullScreen }>
+					Full screen</button>
+			</div>
 
 			<label className = "display-message">
 				{ displayMessage }
@@ -292,6 +320,12 @@ function DemoApp (): JSX.Element {
 				isOpen = {isEmbedConfigDialogOpen}
 				onRequestClose = {() => setIsEmbedConfigDialogOpen(false)}
 				onEmbed = {embedReport}
+			/>
+
+			<EventDetailsDialog
+				isOpen = {isEventDetailsDialogVisible}
+				onRequestClose = {() => setIsEventDetailsDialogVisible(false)}
+				dataSelectedEventDetails = {dataSelectedEventDetails}
 			/>
 
 			{ footer }

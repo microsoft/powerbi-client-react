@@ -14,9 +14,19 @@ button {
 	cursor: pointer;
 	font-size: 16px;
 	height: 35px;
-	margin-bottom: 10px;
-	margin-right: 10px;
-	width: 202px;
+	margin-bottom: 8px;
+	margin-right: 15px;
+	min-width: 270px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	width: calc((100% / 3) - 120px);
+}
+
+.button-container {
+	margin-left: auto;
+	margin-right: auto;
+	max-width: 1120px;
 }
 
 .container {
@@ -37,7 +47,6 @@ button {
 	font: 400 18px/27px 'Segoe UI';
 	height: 30px;
 	justify-content: center;
-	margin-top: 8px;
 	text-align: center;
 }
 
@@ -45,6 +54,7 @@ button {
 	margin-right: 0;
 	margin-top: 18px;
 	text-align: center;
+	width: 180px;
 }
 
 .footer {
@@ -100,7 +110,6 @@ iframe {
         font-size: 12px;
     }
 }
-
 
 @media screen and (max-width: 767px) {
 	.display-message {

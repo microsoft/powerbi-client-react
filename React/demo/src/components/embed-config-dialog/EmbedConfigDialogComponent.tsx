@@ -61,11 +61,11 @@ const EmbedConfigDialog = ({
         <div className="dialog-main">
           <p>Follow the <a href="https://learn.microsoft.com/rest/api/power-bi/embed-token/generate-token" target="_blank" rel="noopener noreferrer">Microsoft Entra Token</a> documentation to generate a Microsoft Entra Token.</p>
           <span>Insert your Microsoft Entra token</span>
-          <FluentTextField name="aadToken" value={aadToken} onInput={onAadTokenChange} className="dialog-field" />
+          <FluentTextField name="aadToken" value={aadToken} onInput={onAadTokenChange} className="dialog-field" aria-label="AAD Token" />
 
           <p>Use the <a href="https://learn.microsoft.com/rest/api/power-bi/reports/get-report-in-group" target="_blank" rel="noopener noreferrer">Get Report In Group</a> REST API to get your embed URL.</p>
           <span>Insert your embed URL</span>
-          <FluentTextField name="embedUrl" value={embedUrl} onInput={onEmbedUrlChange} className="dialog-field" />
+          <FluentTextField name="embedUrl" value={embedUrl} onInput={onEmbedUrlChange} className="dialog-field" aria-label="Embed URL" />
         </div>
         <div className="dialog-buttons">
           <FluentButton className={`run-button ${areFieldsFilled ? "active" : ""}`} disabled={!areFieldsFilled} onClick={runConfig}>Run</FluentButton>

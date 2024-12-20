@@ -29,7 +29,7 @@ const EventDetailsDialog = ({
                     <h1>Event Details</h1>
                     <button className="close-icon-button" onClick={onRequestClose}>&#x2715;</button>
                 </div>
-                <div className="dialog-main-event-details">
+                <div className="dialog-main-event-details" tabIndex={0}>
                     <pre>{JSON.stringify(dataSelectedEventDetails, null, 2)}</pre>
                 </div>
                 <FluentButton className="event-details-close-button" onClick={onRequestClose}>Close</FluentButton>

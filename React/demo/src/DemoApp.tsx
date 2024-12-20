@@ -251,7 +251,7 @@ function DemoApp (): JSX.Element {
 				<button onClick = { toggleFilterPane }>
 					{ isFilterPaneVisibleAndExpanded ? "Hide filter pane" : "Show filter pane" }</button>
 
-				<button onClick = {toggleTheme}>
+				<button onClick = { toggleTheme }>
 					{ isThemeApplied ? "Reset theme" : "Set theme" }</button>
 
 				<button onClick = { setDataSelectedEvent }>
@@ -296,7 +296,7 @@ function DemoApp (): JSX.Element {
 		/>;
 
 	const footer =
-		<div className = "footer">
+		<div className = "footer" aria-hidden = {isEmbedConfigDialogOpen || isEventDetailsDialogVisible}>
 			<p>This demo is powered by Power BI Embedded Analytics</p>
 			<label className = "separator-pipe">|</label>
 			<img title = "Power-BI" alt = "PowerBI_Icon" className = "footer-icon" src = "./assets/PowerBI_Icon.png" />
@@ -310,7 +310,7 @@ function DemoApp (): JSX.Element {
 		<div className = "container">
 			{ header }
 
-			<div className = "controls">
+			<div className = "controls" aria-hidden = {isEmbedConfigDialogOpen || isEventDetailsDialogVisible}>
 				{ controlButtons }
 
 				{ isEmbedded ? reportComponent : null }

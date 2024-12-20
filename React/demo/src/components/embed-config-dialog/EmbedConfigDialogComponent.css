@@ -61,7 +61,7 @@ span {
 fluent-button.close-button::part(control) {
     background-color: #ffffff;
     border: 1px solid #e0e0e0;
-    color: black;
+    color: #000000;
     cursor: pointer;
 }
 

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { service } from 'powerbi-client';
+import { EventHandler } from '../src/PowerBIEmbed';
 import { stringifyMap } from '../src/utils';
 
 describe('tests of PowerBIEmbed', function () {
@@ -12,7 +12,7 @@ describe('tests of PowerBIEmbed', function () {
 		container = document.createElement('div');
 		document.body.appendChild(container);
 	});
-  
+
 	afterEach(function () {
 		if (container){
 			document.body.removeChild(container);
@@ -42,7 +42,7 @@ describe('tests of PowerBIEmbed', function () {
 		it('stringifies empty event handler map', () => {
 
 			// Arrange
-			const eventHandlerMap = new Map<string, service.IEventHandler<any>>([]);
+			const eventHandlerMap = new Map<string, EventHandler>([]);
 			const expectedString = `[]`;
 
 			// Act
@@ -55,7 +55,7 @@ describe('tests of PowerBIEmbed', function () {
 		it('stringifies null in event handler map', () => {
 
 			// Arrange
-			const eventHandlerMap = new Map([
+			const eventHandlerMap = new Map<string, EventHandler>([
 				['loaded', null],
 				['rendered', function () { console.log('Rendered'); }]
 			]);

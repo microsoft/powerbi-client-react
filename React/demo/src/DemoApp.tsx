@@ -2,13 +2,15 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { models, Report, Embed, service, Page } from 'powerbi-client';
+import { models, Report, Embed, service } from 'powerbi-client';
 import { IHttpPostMessageResponse } from 'http-post-message';
 import { PowerBIEmbed } from 'powerbi-client-react';
 import 'powerbi-report-authoring';
 
-import { sampleReportUrl } from './public/constants';
 import './DemoApp.css';
+import EmbedConfigDialog from './components/embed-config-dialog/EmbedConfigDialogComponent';
+import EventDetailsDialog from './components/event-details-dialog/EventDetailsDialogComponent';
+import { sampleTheme } from './constants/constants';
 
 // Root Component to demonstrate usage of embedded component
 function DemoApp (): JSX.Element {
@@ -19,18 +21,28 @@ function DemoApp (): JSX.Element {
 	// Track Report embedding status
 	const [isEmbedded, setIsEmbedded] = useState<boolean>(false);
 
-    // Overall status message of embedding
-	const [displayMessage, setMessage] = useState(`The report is bootstrapped. Click the Embed Report button to set the access token`);
+	const [displayMessage, setMessage] = useState(`The report is bootstrapped. Click the Embed Report button to set the access token.`);
+	const [isEmbedConfigDialogOpen, setIsEmbedConfigDialogOpen] = useState<boolean>(false);
+	const [isFilterPaneVisibleAndExpanded, setIsFilterPaneVisibleAndExpanded] = useState<boolean>(true);
+	const [isThemeApplied, setIsThemeApplied] = useState<boolean>(false);
+	const [isZoomedOut, setIsZoomedOut] = useState<boolean>(false);
+	const [isDataSelectedEvent, setIsDataSelectedEvent] = useState<boolean>(false);
+	const [isEventDetailsDialogVisible, setIsEventDetailsDialogVisible] = useState<boolean>(false);
+	const [dataSelectedEventDetails, setDataSelectedEventDetails] = useState<any>(null);
+
+	// Constants for zoom levels
+	const zoomOutLevel = 0.5;
+	const zoomInLevel = 0.9;
 
 	// CSS Class to be passed to the embedded component
 	const reportClass = 'report-container';
 
 	// Pass the basic embed configurations to the embedded component to bootstrap the report on first load
-    // Values for properties like embedUrl, accessToken and settings will be set on click of button
+	// Values for properties like embedUrl, accessToken and settings will be set on click of button
 	const [sampleReportConfig, setReportConfig] = useState<models.IReportEmbedConfiguration>({
 		type: 'report',
 		embedUrl: undefined,
-		tokenType: models.TokenType.Embed,
+		tokenType: models.TokenType.Aad,
 		accessToken: undefined,
 		settings: undefined,
 	});
@@ -61,67 +73,49 @@ function DemoApp (): JSX.Element {
 		}
 	}, [report]);
 
-    /**
-     * Embeds report
-     *
-     * @returns Promise<void>
-     */
-	const embedReport = async (): Promise<void> => {
-		console.log('Embed Report clicked');
-
-		// Get the embed config from the service
-		const reportConfigResponse = await fetch(sampleReportUrl);
-
-		if (reportConfigResponse === null) {
-			return;
-		}
-
-		if (!reportConfigResponse?.ok) {
-			console.error(`Failed to fetch config for report. Status: ${ reportConfigResponse.status } ${ reportConfigResponse.statusText }`);
-			return;
-		}
-
-		const reportConfig = await reportConfigResponse.json();
-
+	/**
+	 * Embeds report
+	 */
+	const embedReport = (embedUrl: string, accessToken: string): void => {
 		// Update the reportConfig to embed the PowerBI report
 		setReportConfig({
 			...sampleReportConfig,
-			embedUrl: reportConfig.EmbedUrl,
-			accessToken: reportConfig.EmbedToken.Token
+			embedUrl,
+			accessToken
 		});
 		setIsEmbedded(true);
 
-		// Update the display message
 		setMessage('Use the buttons above to interact with the report using Power BI Client APIs.');
+		setIsEmbedConfigDialogOpen(false);
 	};
 
-    /**
-     * Hide Filter Pane
-     *
-     * @returns Promise<IHttpPostMessageResponse<void> | undefined>
-     */
-	const hideFilterPane = async (): Promise<IHttpPostMessageResponse<void> | undefined>  => {
-		// Check if report is available or not
+	/**
+ 	 * Toggle Filter Pane
+ 	 *
+ 	 * @returns Promise<IHttpPostMessageResponse<void> | undefined>
+ 	 */
+	const toggleFilterPane = async (): Promise<IHttpPostMessageResponse<void> | undefined> => {
 		if (!report) {
 			setDisplayMessageAndConsole('Report not available');
 			return;
 		}
 
-		// New settings to hide filter pane
+		const filterPaneVisibleAndExpanded = !isFilterPaneVisibleAndExpanded;
+		setIsFilterPaneVisibleAndExpanded(filterPaneVisibleAndExpanded);
+
+		// Update the settings to show/hide the filter pane
 		const settings = {
 			panes: {
 				filters: {
-					expanded: false,
-					visible: false,
+					expanded: filterPaneVisibleAndExpanded,
+					visible: filterPaneVisibleAndExpanded,
 				},
 			},
 		};
 
 		try {
 			const response: IHttpPostMessageResponse<void> = await report.updateSettings(settings);
-
-			// Update display message
-			setDisplayMessageAndConsole('Filter pane is hidden.');
+			setDisplayMessageAndConsole(filterPaneVisibleAndExpanded ? 'Filter pane is visible.' : 'Filter pane is hidden.');
 			return response;
 		} catch (error) {
 			console.error(error);
@@ -129,64 +123,121 @@ function DemoApp (): JSX.Element {
 		}
 	};
 
-    /**
-     * Set data selected event
-     *
-     * @returns void
-     */
-	const setDataSelectedEvent = () => {
-		setEventHandlersMap(new Map<string, (event?: service.ICustomEvent<any>, embeddedEntity?: Embed) => void | null> ([
-			...eventHandlersMap,
-			['dataSelected', (event) => console.log(event)],
-		]));
-
-		setMessage('Data Selected event set successfully. Select data to see event in console.');
+	/**
+	 * Handles the visibility and details of the data-selected event dialog.
+ 	 */
+	const dataSelectedEventDetailsDialog = (dataSelectedEventDetails: any): void => {
+		setDataSelectedEventDetails(dataSelectedEventDetails);
+		setIsEventDetailsDialogVisible(true);
 	}
 
-    /**
-     * Change visual type
-     *
-     * @returns Promise<void>
-     */
-	const changeVisualType = async (): Promise<void> => {
-		// Check if report is available or not
+	/**
+	 * Set data selected event
+ 	 */
+	const setDataSelectedEvent = () => {
+		const dataSelectedEvent = !isDataSelectedEvent;
+		setIsDataSelectedEvent(dataSelectedEvent);
+
+		if(dataSelectedEvent) {
+			// Adding dataSelected event in eventHandlersMap
+			setEventHandlersMap(new Map<string, (event?: service.ICustomEvent<any>, embeddedEntity?: Embed) => void | null> ([
+				...eventHandlersMap,
+				['dataSelected', (event) => {
+					if (event?.detail.dataPoints.length) {
+						dataSelectedEventDetailsDialog(event.detail);
+					}
+				}],
+			]));
+
+			setMessage('Data Selected event has been successfully set. Click on a data point to see the details.');
+		}
+		else {
+			eventHandlersMap.delete('dataSelected');
+			report?.off('dataSelected');
+			setMessage('Data Selected event has been successfully unset.')
+		}
+	}
+
+	/**
+ 	 * Toggle theme
+	 *
+	 * @returns Promise<void>
+	 */
+	const toggleTheme = async (): Promise<void> => {
 		if (!report) {
 			setDisplayMessageAndConsole('Report not available');
 			return;
 		}
 
-		// Get active page of the report
-		const activePage: Page | undefined = await report.getActivePage();
-
-		if (!activePage) {
-			setMessage('No Active page found');
-			return;
-		}
-
+		// Update the theme by passing in the custom theme.
+		// Some theme properties might not be applied if your report has custom colors set.
 		try {
-			// Change the visual type using powerbi-report-authoring
-			// For more information: https://docs.microsoft.com/en-us/javascript/api/overview/powerbi/report-authoring-overview
-			const visual = await activePage.getVisualByName('VisualContainer6');
-
-			const response = await visual.changeType('lineChart');
-
-			setDisplayMessageAndConsole(`The ${visual.type} was updated to lineChart.`);
-
-			return response;
-		}
-		catch (error) {
-			if (error === 'PowerBIEntityNotFound') {
-				console.log('No Visual found with that name');
-			} else {
-				console.log(error);
-			}
+			await isThemeApplied ? report.resetTheme() : report.applyTheme({ themeJson: sampleTheme });
+			const themeApplied = !isThemeApplied;
+			setIsThemeApplied(themeApplied);
+			setDisplayMessageAndConsole(themeApplied ? "Theme has been applied." : "Theme has been reset to default.");
+		} catch (error) {
+			setDisplayMessageAndConsole("Failed to apply theme.");
+			console.error(error);
 		}
 	};
 
 	/**
+	 * Toggle zoom
+	 *
+	 * @returns Promise<void>
+	 */
+	const toggleZoom = async (): Promise<void> => {
+		if (!report) {
+			setDisplayMessageAndConsole('Report not available');
+			return;
+		}
+
+		try {
+			const newZoomLevel: number = isZoomedOut ? zoomInLevel : zoomOutLevel;
+			await report.setZoom(newZoomLevel);
+			setIsZoomedOut(!isZoomedOut);
+		}
+		catch (errors) {
+			console.log(errors);
+		}
+	}
+
+	/**
+	 * Refresh report event
+	 *
+	 * @returns Promise<void>
+	 */
+	const refreshReport = async (): Promise<void> => {
+		if (!report) {
+			setDisplayMessageAndConsole('Report not available');
+			return;
+		}
+
+		try {
+			await report.refresh();
+			setDisplayMessageAndConsole('The report has been refreshed successfully.');
+		}
+		catch (error: any) {
+			setDisplayMessageAndConsole(error.detailedMessage);
+		}
+	}
+
+	/**
+	 * Full screen event
+	 */
+	const enableFullScreen = (): void => {
+		if (!report) {
+			setDisplayMessageAndConsole('Report not available');
+			return;
+		}
+
+		report.fullscreen();
+	}
+
+
+	/**
      * Set display message and log it in the console
-     *
-     * @returns void
      */
 	const setDisplayMessageAndConsole = (message: string): void => {
 		setMessage(message);
@@ -196,14 +247,25 @@ function DemoApp (): JSX.Element {
 	const controlButtons =
 		isEmbedded ?
 		<>
-			<button onClick = { changeVisualType }>
-				Change visual type</button>
+			<div className = "button-container">
+				<button onClick = { toggleFilterPane }>
+					{ isFilterPaneVisibleAndExpanded ? "Hide filter pane" : "Show filter pane" }</button>
 
-			<button onClick = { hideFilterPane }>
-				Hide filter pane</button>
+				<button onClick = { toggleTheme }>
+					{ isThemeApplied ? "Reset theme" : "Set theme" }</button>
 
-			<button onClick = { setDataSelectedEvent }>
-				Set event</button>
+				<button onClick = { setDataSelectedEvent }>
+					{ isDataSelectedEvent ? "Hide dataSelected event in dialog" : "Show dataSelected event in dialog" }</button>
+
+				<button onClick = { toggleZoom }>
+					{ isZoomedOut ? "Zoom in" : "Zoom out" }</button>
+
+				<button onClick = { refreshReport }>
+					Refresh report</button>
+
+				<button onClick = { enableFullScreen }>
+					Full screen</button>
+			</div>
 
 			<label className = "display-message">
 				{ displayMessage }
@@ -215,7 +277,7 @@ function DemoApp (): JSX.Element {
 				{ displayMessage }
 			</label>
 
-			<button onClick = { embedReport } className = "embed-report">
+			<button className = "embed-report" onClick = {() => setIsEmbedConfigDialogOpen(true)}>
 				Embed Report</button>
 		</>;
 
@@ -234,25 +296,37 @@ function DemoApp (): JSX.Element {
 		/>;
 
 	const footer =
-		<div className = "footer">
+		<div className = "footer" aria-hidden = {isEmbedConfigDialogOpen || isEventDetailsDialogVisible}>
 			<p>This demo is powered by Power BI Embedded Analytics</p>
 			<label className = "separator-pipe">|</label>
 			<img title = "Power-BI" alt = "PowerBI_Icon" className = "footer-icon" src = "./assets/PowerBI_Icon.png" />
-			<p>Explore our<a href = "https://aka.ms/pbijs/" target = "_blank" rel = "noreferrer noopener">Playground</a></p>
+			<p>Explore our <a href = "https://aka.ms/pbijs/" target = "_blank" rel = "noreferrer noopener">Playground</a></p>
 			<label className = "separator-pipe">|</label>
 			<img title = "GitHub" alt = "GitHub_Icon" className = "footer-icon" src = "./assets/GitHub_Icon.png" />
-			<p>Find the<a href = "https://github.com/microsoft/PowerBI-client-react" target = "_blank" rel = "noreferrer noopener">source code</a></p>
+			<p>Find the <a href = "https://github.com/microsoft/PowerBI-client-react" target = "_blank" rel = "noreferrer noopener">source code</a></p>
 		</div>;
 
 	return (
 		<div className = "container">
 			{ header }
 
-			<div className = "controls">
+			<div className = "controls" aria-hidden = {isEmbedConfigDialogOpen || isEventDetailsDialogVisible}>
 				{ controlButtons }
 
 				{ isEmbedded ? reportComponent : null }
 			</div>
+
+			<EmbedConfigDialog
+				isOpen = {isEmbedConfigDialogOpen}
+				onRequestClose = {() => setIsEmbedConfigDialogOpen(false)}
+				onEmbed = {embedReport}
+			/>
+
+			<EventDetailsDialog
+				isOpen = {isEventDetailsDialogVisible}
+				onRequestClose = {() => setIsEventDetailsDialogVisible(false)}
+				dataSelectedEventDetails = {dataSelectedEventDetails}
+			/>
 
 			{ footer }
 		</div>

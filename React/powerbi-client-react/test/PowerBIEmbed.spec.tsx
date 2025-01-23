@@ -1,51 +1,40 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import 'react-app-polyfill/ie11';	// For PhantomJS compatibility
-import 'react-app-polyfill/stable';	// For PhantomJS compatibility
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { act, isElement } from 'react-dom/test-utils';
-import { Report, Dashboard, service, factories, IEmbedSettings, IReportEmbedConfiguration } from 'powerbi-client';
-import { mockPowerBIService, mockedMethods } from "./mockService";
-import { IBasicFilter, FilterType, FiltersOperations } from 'powerbi-models';
+import React, { isValidElement } from 'react';
+import { createRoot, Root } from 'react-dom/client';
+import { Report, Dashboard, service, factories, Embed } from 'powerbi-client';
+import { act } from "@testing-library/react";
 
-import { PowerBIEmbed } from '../src/PowerBIEmbed';
+import { mockPowerBIService, mockedMethods } from "./mockService";
+import { PowerBIEmbed, EventHandler } from '../src/PowerBIEmbed';
 import { stringifyMap } from '../src/utils';
 
 // Use this function to render powerbi entity with only config
-function renderReport(container: HTMLDivElement, config) {
-	let testReport: Report = undefined;
+function renderReport(config, root: Root) {
+	let testReport!: Report;
 	act(() => {
-		ReactDOM.render(
+		root.render(
 			<PowerBIEmbed
 				embedConfig={config}
-				getEmbeddedComponent={(callbackReport: Report) => {
-					testReport = callbackReport;
+				getEmbeddedComponent={(callbackReport: Embed) => {
+					testReport = callbackReport as Report;
 				}}
-			/>, container);
+			/>
+		)
 	});
 	return testReport;
 }
 
 describe('tests of PowerBIEmbed', function () {
 
-	let container: HTMLDivElement | null;
-
-	const filter: IBasicFilter = {
-		$schema: 'fakeSchema',
-		target: {
-			table: 'fakeTable',
-			column: 'fakeRegion'
-		},
-		filterType: FilterType.Basic,
-		operator: 'In',
-		values: ['fakeValue']
-	}
+	let container: HTMLDivElement;
+	let root: Root;
 
 	beforeEach(function () {
 		container = document.createElement('div');
 		document.body.appendChild(container);
+		root = createRoot(container);
 
 		// Reset all methods in PowerBI Service spy object
 		mockedMethods.forEach(mockedMethod => {
@@ -56,7 +45,7 @@ describe('tests of PowerBIEmbed', function () {
 	afterEach(function () {
 		if (container) {
 			document.body.removeChild(container);
-			container = null;
+			container = document.createElement('div'); // Reset to an empty div;
 		}
 	});
 
@@ -66,14 +55,14 @@ describe('tests of PowerBIEmbed', function () {
 			const component = <PowerBIEmbed embedConfig={{ type: 'report' }} />
 
 			// Assert
-			expect(isElement(component)).toBe(true);
+			expect(isValidElement(component)).toBe(true);
 		});
 
 		it('renders exactly one div', () => {
 
 			// Act
 			act(() => {
-				ReactDOM.render(<PowerBIEmbed embedConfig={{ type: 'report' }} />, container);
+				root.render(<PowerBIEmbed embedConfig={{ type: 'report' }} />);
 			});
 
 			const divCount = container.querySelectorAll('div').length;
@@ -83,30 +72,34 @@ describe('tests of PowerBIEmbed', function () {
 		});
 
 		it('renders exactly one iframe', () => {
+
 			// Act
 			act(() => {
-				ReactDOM.render(<PowerBIEmbed embedConfig={{ type: 'report' }} />, container);
+				root.render(<PowerBIEmbed embedConfig={{ type: 'report' }} />);
 			});
 
-			const divCount = container.querySelectorAll('iframe').length;
+			const divCount = container?.querySelectorAll('iframe').length;
 
 			// Assert
 			expect(divCount).toBe(1);
 		});
 
 		it('sets the css classes', () => {
+
+			// Arrange
 			const inputCssClass = 'test-class another-test-class';
 
 			// Act
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={{ type: 'report' }}
-						cssClassName={inputCssClass} />
-					, container);
+						cssClassName={inputCssClass}
+					/>
+				);
 			});
 
-			const divClass = container.querySelectorAll('div')[0].className;
+			const divClass = container?.querySelectorAll('div')[0].className;
 
 			// Assert
 			expect(divClass).toBe(inputCssClass);
@@ -114,446 +107,68 @@ describe('tests of PowerBIEmbed', function () {
 
 		it('gets the embedded report object', () => {
 
-			// Arrange
-			let testReport = undefined;
-
 			// Act
-			testReport = renderReport(container, { type: 'report' });
+			const testReport = renderReport({ type: 'report' }, root);
 
 			// Assert
-			expect(testReport).not.toBe(undefined);
+			expect(testReport).toBeDefined();
 			expect(testReport instanceof Report).toBe(true);
 		});
 
 		it('gets the embedded dashboard object', () => {
 
-			// Arrange
-			let testReport = undefined;
-
 			// Act
-			testReport = renderReport(container, { type: 'dashboard' });
+			const testReport = renderReport({ type: 'dashboard' }, root);
 
 			// Assert
-			expect(testReport).not.toBe(undefined);
+			expect(testReport).toBeDefined();
 			expect(testReport instanceof Dashboard).toBe(true);
 		});
 	});
 
-	describe('tests of powerbi report update settings', function () {
-
-		it('does not updates powerbi report settings', () => {
-
-			// Arrange
-			let testReport: Report = undefined;
-			testReport = renderReport(container, { type: 'report' });
-
-			spyOn(testReport, 'updateSettings').and.callThrough();
-
-			// Act
-			act(() => {
-				ReactDOM.render(
-					<PowerBIEmbed
-						embedConfig={{ type: 'report' }}
-						getEmbeddedComponent={(callbackReport: Report) => {
-							testReport = callbackReport;
-						}}
-					/>, container);
-			});
-
-			// Assert
-			expect(testReport.updateSettings).toHaveBeenCalledTimes(0);
-		});
-
-		it('updates powerbi report settings once', () => {
-
-			// Arrange
-			let testReport: Report = undefined;
-			let settingsObj: IEmbedSettings = { filterPaneEnabled: false };
-			testReport = renderReport(container, { type: 'report' });
-
-			spyOn(testReport, 'updateSettings').and.callThrough();
-
-			// Act
-			// Update settings via props
-			act(() => {
-				ReactDOM.render(
-					<PowerBIEmbed
-						embedConfig={{ type: 'report', settings: settingsObj }}
-						getEmbeddedComponent={(callbackReport: Report) => {
-							testReport = callbackReport;
-						}}
-					/>, container);
-			});
-
-			// Assert
-			expect(testReport.updateSettings).toHaveBeenCalledTimes(1);
-			expect(testReport.updateSettings).toHaveBeenCalledWith(settingsObj);
-		});
-
-		it('updates powerbi report settings once with passing same settings twice', () => {
-
-			// Arrange
-			let testReport: Report = undefined;
-			let settingsObj: IEmbedSettings = { filterPaneEnabled: false };
-			testReport = renderReport(container, { type: 'report' });
-
-			spyOn(testReport, 'updateSettings').and.callThrough();
-
-			// Update settings via props
-			act(() => {
-				ReactDOM.render(
-					<PowerBIEmbed
-						embedConfig={{ type: 'report', settings: settingsObj }}
-						getEmbeddedComponent={(callbackReport: Report) => {
-							testReport = callbackReport;
-						}}
-					/>, container);
-			});
-
-			// Act
-			// Pass same settings via props
-			act(() => {
-				ReactDOM.render(
-					<PowerBIEmbed
-						embedConfig={{ type: 'report', settings: settingsObj }}
-						getEmbeddedComponent={(callbackReport: Report) => {
-							testReport = callbackReport;
-						}}
-					/>, container);
-			});
-
-			// Assert
-			expect(testReport.updateSettings).toHaveBeenCalledTimes(1);
-			expect(testReport.updateSettings).toHaveBeenCalledWith(settingsObj);
-		});
-
-		it('updates powerbi report settings twice with passing different settings', () => {
-
-			// Arrange
-			let testReport: Report = undefined;
-			let settingsObject: IEmbedSettings = { filterPaneEnabled: false };
-			let updatedSettingsObject: IEmbedSettings = { filterPaneEnabled: true };
-			testReport = renderReport(container, { type: 'report' });
-
-			spyOn(testReport, 'updateSettings').and.callThrough();
-
-			// Act
-			// Update settings via props
-			act(() => {
-				ReactDOM.render(
-					<PowerBIEmbed
-						embedConfig={{ type: 'report', settings: settingsObject }}
-						getEmbeddedComponent={(callbackReport: Report) => {
-							testReport = callbackReport;
-						}}
-					/>, container);
-			});
-
-			// Assert
-			expect(testReport.updateSettings).toHaveBeenCalledTimes(1);
-			expect(testReport.updateSettings).toHaveBeenCalledWith(settingsObject);
-
-			// Act
-			// Update diffferent settings via props
-			act(() => {
-				ReactDOM.render(
-					<PowerBIEmbed
-						embedConfig={{ type: 'report', settings: updatedSettingsObject }}
-						getEmbeddedComponent={(callbackReport: Report) => {
-							testReport = callbackReport;
-						}}
-					/>, container);
-			});
-
-			// Assert
-			expect(testReport.updateSettings).toHaveBeenCalledTimes(2);
-			expect(testReport.updateSettings).toHaveBeenCalledWith(updatedSettingsObject);
-		});
-	});
-
-	it('sets new token received in updated props (case: Token expired)', () => {
-
+	it("does not re-embed again when embedConfig remains unchanged", () => {
 		// Arrange
-		let testReport: Report = undefined;
-		let config = {
+		const config = {
 			type: 'report',
 			id: 'fakeId',
-			embedUrl: 'fakeUrl',
+			embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 			accessToken: 'fakeToken'
 		};
 
 		// New accessToken
-		let newConfig = {
+		const newConfig = {
 			type: 'report',
 			id: 'fakeId',
-			embedUrl: 'fakeUrl',
-			accessToken: 'newfakeToken'
+			embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
+			accessToken: 'fakeToken'
 		};
 
-		testReport = renderReport(container, config);
+		// Act
+		act(() => {
+			root.render(
+				<PowerBIEmbed
+					embedConfig={config}
+					service={mockPowerBIService}
+				/>
+			);
+		});
 
-		spyOn(testReport, 'setAccessToken').and.callThrough();
+		//Assert
+		expect(mockPowerBIService.embed).toHaveBeenCalled();
+		mockPowerBIService.embed.calls.reset();
 
 		// Act
-		// Update accessToken via props
 		act(() => {
-			ReactDOM.render(
+			root.render(
 				<PowerBIEmbed
 					embedConfig={newConfig}
-					getEmbeddedComponent={(callbackReport: Report) => {
-						testReport = callbackReport;
-					}}
-				/>, container);
+					service={mockPowerBIService}
+				/>
+			);
 		});
 
 		// Assert
-		expect(testReport).toBeDefined();
-		expect(testReport.setAccessToken).toHaveBeenCalledTimes(1);
-		expect(testReport.setAccessToken).toHaveBeenCalledWith(newConfig.accessToken);
-	});
-
-	describe('test powerbi updating report filters', () => {
-		it('applies the updated filter', () => {
-
-			// Arrange
-			let testReport: Report = undefined;
-			const config = {
-				type: 'report',
-				id: 'fakeId',
-				embedUrl: 'fakeUrl',
-				accessToken: 'fakeToken',
-				filters: [filter],
-			};
-
-			testReport = renderReport(container, { type: 'report' });
-			spyOn(testReport, 'updateFilters').and.callThrough();
-
-			// Act
-			act(() => {
-				ReactDOM.render(
-					<PowerBIEmbed
-						embedConfig={config}
-						getEmbeddedComponent={(callbackReport: Report) => {
-							testReport = callbackReport;
-						}}
-					/>, container);
-			});
-
-			// Assert
-			expect(testReport.updateFilters).toHaveBeenCalledTimes(1);
-			expect(testReport.updateFilters).toHaveBeenCalledWith(FiltersOperations.Replace, config.filters);
-		});
-
-		it('does not apply filter if same filter is provided in the new config', () => {
-
-			// Arrange
-			let testReport: Report = undefined;
-			const oldConfig = {
-				type: 'report',
-				id: 'fakeId',
-				embedUrl: 'fakeUrl',
-				accessToken: 'fakeToken',
-				filters: [filter]
-			};
-
-			const newConfig = {
-				...oldConfig,
-				filters: [filter]
-			};
-
-			testReport = renderReport(container, oldConfig);
-
-			spyOn(testReport, 'updateFilters').and.callThrough();
-
-			// Act
-			act(() => {
-				ReactDOM.render(
-					<PowerBIEmbed
-						embedConfig={newConfig}
-						getEmbeddedComponent={(callbackReport: Report) => {
-							testReport = callbackReport;
-						}}
-					/>, container);
-			});
-
-			// Assert
-			expect(testReport.updateFilters).toHaveBeenCalledTimes(0);
-		});
-
-		it('calls setFilters but does not apply filters if updated filter is of type models.OnLoadFilters', () => {
-
-			// Arrange
-			let testReport: Report = undefined;
-			const oldConfig: IReportEmbedConfiguration = {
-				type: 'report',
-				id: 'fakeId',
-				embedUrl: 'fakeUrl',
-				accessToken: 'fakeToken',
-				filters: {}
-			};
-
-			const newConfig: IReportEmbedConfiguration = {
-				...oldConfig,
-				filters: {
-					allPages: { operation: FiltersOperations.Add }	// OnLoadFilter
-				}
-			};
-
-			testReport = renderReport(container, oldConfig);
-
-			spyOn(testReport, 'updateFilters').and.callThrough();
-
-			// Act
-			act(() => {
-				ReactDOM.render(
-					<PowerBIEmbed
-						embedConfig={newConfig}
-						getEmbeddedComponent={(callbackReport: Report) => {
-							testReport = callbackReport;
-						}}
-					/>, container);
-			});
-
-			// Assert
-			expect(testReport.updateFilters).toHaveBeenCalledTimes(1);
-		});
-
-		it('removes the filters if the filters were provided in old props but removed in new props', () => {
-
-			// Arrange
-			let testReport: Report = undefined;
-			const oldConfig = {
-				type: 'report',
-				id: 'fakeId',
-				embedUrl: 'fakeUrl',
-				accessToken: 'fakeToken',
-				filters: [filter],
-			};
-
-			const newConfig = {
-				type: 'report',
-				id: 'fakeId',
-				embedUrl: 'fakeUrl',
-				accessToken: 'fakeToken',
-			};
-
-			testReport = renderReport(container, oldConfig);
-
-			spyOn(testReport, 'updateFilters').and.callThrough();
-
-			// Act
-			// Remove any applied filters via props
-			act(() => {
-				ReactDOM.render(
-					<PowerBIEmbed
-						embedConfig={newConfig}
-						getEmbeddedComponent={(callbackReport: Report) => {
-							testReport = callbackReport;
-						}}
-					/>, container);
-			});
-
-			// Assert
-			expect(testReport.updateFilters).toHaveBeenCalledTimes(1);
-			expect(testReport.updateFilters).toHaveBeenCalledWith(FiltersOperations.RemoveAll);
-		});
-	});
-
-	describe('test powerbi changing report page', () => {
-		it('changes report page when provided', () => {
-
-			// Arrange
-			let testReport: Report = undefined;
-			const config = {
-				type: 'report',
-				id: 'fakeId',
-				embedUrl: 'fakeUrl',
-				accessToken: 'fakeToken',
-				pageName: 'fakePage',
-			};
-
-			testReport = renderReport(container, { type: 'report' });
-			spyOn(testReport, 'setPage').and.callThrough();
-
-			// Act
-			act(() => {
-				ReactDOM.render(
-					<PowerBIEmbed
-						embedConfig={config}
-						getEmbeddedComponent={(callbackReport: Report) => {
-							testReport = callbackReport;
-						}}
-					/>, container);
-			});
-
-			// Assert
-			expect(testReport.setPage).toHaveBeenCalledTimes(1);
-			expect(testReport.setPage).toHaveBeenCalledWith(config.pageName);
-		});
-
-		it('does not change report page when not provided', () => {
-
-			// Arrange
-			let testReport: Report = undefined;
-			const config = {
-				type: 'report',
-				id: 'fakeId',
-				embedUrl: 'fakeUrl',
-				accessToken: 'fakeToken',
-			};
-
-			testReport = renderReport(container, { type: 'report' });
-			spyOn(testReport, 'setPage').and.callThrough();
-
-			// Act
-			act(() => {
-				ReactDOM.render(
-					<PowerBIEmbed
-						embedConfig={config}
-						getEmbeddedComponent={(callbackReport: Report) => {
-							testReport = callbackReport;
-						}}
-					/>, container);
-			});
-
-			// Assert
-			expect(testReport.setPage).toHaveBeenCalledTimes(0);
-		});
-
-		it('does not change report page when same page is provide in the old props and new props', () => {
-
-			// Arrange
-			let testReport: Report = undefined;
-			const oldConfig = {
-				type: 'report',
-				id: 'fakeId',
-				embedUrl: 'fakeUrl',
-				accessToken: 'fakeToken',
-				pageName: 'fakePage'
-			};
-			const newConfig = {
-				...oldConfig,
-				pageName: 'fakePage'
-			};
-
-			testReport = renderReport(container, oldConfig);
-
-			spyOn(testReport, 'setPage').and.callThrough();
-
-			// Act
-			act(() => {
-				ReactDOM.render(
-					<PowerBIEmbed
-						embedConfig={newConfig}
-						getEmbeddedComponent={(callbackReport: Report) => {
-							testReport = callbackReport;
-						}}
-					/>, container);
-			});
-
-			// Assert
-			expect(testReport.setPage).toHaveBeenCalledTimes(0);
-		});
+		expect(mockPowerBIService.embed).not.toHaveBeenCalled();
 	});
 
 	describe('test powerbi service interaction', () => {
@@ -561,20 +176,21 @@ describe('tests of PowerBIEmbed', function () {
 		it('embeds report when accessToken provided', () => {
 
 			// Arrange
-			let config = {
+			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken'
 			};
 
 			// Act
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={config}
 						service={mockPowerBIService}
-					/>, container);
+					/>
+				);
 			});
 
 			// Assert
@@ -585,19 +201,20 @@ describe('tests of PowerBIEmbed', function () {
 		it('bootstraps report when no accessToken provided', () => {
 
 			// Arrange
-			let config = {
+			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl'
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl'
 			};
 
 			// Act
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={config}
 						service={mockPowerBIService}
-					/>, container);
+					/>
+				);
 			});
 
 			// Assert
@@ -611,24 +228,25 @@ describe('tests of PowerBIEmbed', function () {
 			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
-				accessToken: null
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
+				accessToken: undefined
 			};
 			const newConfig = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/newFakeEmbedUrl',
 				accessToken: 'fakeToken'
 			};
 
 			// Act
 			// Without accessToken (bootstrap)
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={config}
 						service={mockPowerBIService}
-					/>, container);
+					/>
+				);
 			});
 
 			// Assert
@@ -642,11 +260,12 @@ describe('tests of PowerBIEmbed', function () {
 			// Act
 			// With accessToken (embed)
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={newConfig}
 						service={mockPowerBIService}
-					/>, container);
+					/>
+				);
 			});
 
 			// Assert
@@ -658,24 +277,24 @@ describe('tests of PowerBIEmbed', function () {
 			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken',
 			};
 			const newConfig = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
-				accessToken: 'fakeToken',
-				settings: { filterPaneEnabled: false }
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
+				accessToken: 'fakeToken'
 			};
 
 			// Act
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={config}
 						service={mockPowerBIService}
-					/>, container);
+					/>
+				);
 			});
 
 			// Assert
@@ -685,11 +304,12 @@ describe('tests of PowerBIEmbed', function () {
 			// Act
 			// With accessToken (embed)
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={newConfig}
 						service={mockPowerBIService}
-					/>, container);
+					/>
+				);
 			});
 
 			// Assert
@@ -697,26 +317,26 @@ describe('tests of PowerBIEmbed', function () {
 		});
 
 		it('powerbi.reset called when component unmounts', () => {
-
 			// Arrange
-			let config = {
+			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken'
 			};
 
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={config}
 						service={mockPowerBIService}
-					/>, container);
+					/>
+				);
 			});
 
 			// Act
 			act(() => {
-				ReactDOM.unmountComponentAtNode(container);
+				root.unmount();
 			});
 
 			// Assert
@@ -726,31 +346,33 @@ describe('tests of PowerBIEmbed', function () {
 		it("embeds when report's embedUrl is updated in new props", () => {
 
 			// Arrange
-			let config = {
+			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken'
 			};
 
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={config}
 						service={mockPowerBIService}
-					/>, container);
+					/>
+				);
 			});
 
 			// Embed URL of different report
-			config.embedUrl = 'newFakeUrl';
+			config.embedUrl = 'https://app.powerbi.com/newFakeEmbedUrl';
 
 			// Act
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={config}
 						service={mockPowerBIService}
-					/>, container);
+					/>
+				);
 			});
 
 			// Assert
@@ -763,19 +385,18 @@ describe('tests of PowerBIEmbed', function () {
 			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken'
 			};
 
 			// Act
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={config}
 						service={mockPowerBIService}
 						phasedEmbedding={true}
-					/>,
-					container
+					/>
 				);
 			});
 
@@ -793,19 +414,18 @@ describe('tests of PowerBIEmbed', function () {
 			const config = {
 				type: 'dashboard',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken'
 			};
 
 			// Act
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={config}
 						service={mockPowerBIService}
 						phasedEmbedding={true}
-					/>,
-					container
+					/>
 				);
 			});
 
@@ -817,25 +437,24 @@ describe('tests of PowerBIEmbed', function () {
 			expect(mockPowerBIService.embed).toHaveBeenCalledTimes(1);
 		});
 
-		it('embeds the report when phasedEmbedding props is null', () => {
+		it('embeds the report when phasedEmbedding props is undefined', () => {
 
 			// Arrange
 			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken'
 			};
 
 			// Act
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={config}
 						service={mockPowerBIService}
-						phasedEmbedding={null}
-					/>,
-					container
+						phasedEmbedding={undefined}
+					/>
 				);
 			});
 
@@ -853,18 +472,17 @@ describe('tests of PowerBIEmbed', function () {
 			const config = {
 				type: 'report',
 				id: 'fakeId',
-				embedUrl: 'fakeUrl',
+				embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 				accessToken: 'fakeToken'
 			};
 
 			// Act
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={config}
 						service={mockPowerBIService}
-					/>,
-					container
+					/>
 				);
 			});
 
@@ -881,52 +499,54 @@ describe('tests of PowerBIEmbed', function () {
 		it('invokes getEmbeddedComponent on embed', () => {
 
 			// Arrange
-			let mockgetEmbeddedComponent = jasmine.createSpy('getEmbeddedComponent');
+			const mockgetEmbeddedComponent = jasmine.createSpy('getEmbeddedComponent');
 
 			// Act
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={{
 							type: 'report',
 							id: 'fakeId',
-							embedUrl: 'fakeUrl',
+							embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 							accessToken: 'fakeToken'
 						}}
 						getEmbeddedComponent={mockgetEmbeddedComponent}
-					/>, container);
+					/>
+				);
 			});
 
 			// Assert
 			expect(mockgetEmbeddedComponent).toHaveBeenCalledTimes(1);
 		});
 
-		it('invokes getEmbeddedComponent once on embed and not on settings update', () => {
+		it('invokes getEmbeddedComponent once on embed and again when embedConfig is updated', () => {
 
 			// Arrange
-			let mockgetEmbeddedComponent = jasmine.createSpy('getEmbeddedComponent');
+			const mockgetEmbeddedComponent = jasmine.createSpy('getEmbeddedComponent');
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={{
 							type: 'report',
 							id: 'fakeId',
-							embedUrl: 'fakeUrl',
+							embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 							accessToken: 'fakeToken'
 						}}
 						getEmbeddedComponent={mockgetEmbeddedComponent}
-					/>, container);
+					/>
+				);
 			});
 
 			// Act
 			// Update settings
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={{
 							type: 'report',
 							id: 'fakeId',
-							embedUrl: 'fakeUrl',
+							embedUrl: 'https://app.powerbi.com/fakeEmbedUrl',
 							accessToken: 'fakeToken',
 							settings: {
 								panes: {
@@ -937,11 +557,12 @@ describe('tests of PowerBIEmbed', function () {
 							}
 						}}
 						getEmbeddedComponent={mockgetEmbeddedComponent}
-					/>, container);
+					/>
+				);
 			});
 
 			// Assert
-			expect(mockgetEmbeddedComponent).toHaveBeenCalledTimes(1);
+			expect(mockgetEmbeddedComponent).toHaveBeenCalledTimes(2);
 		});
 	});
 
@@ -982,34 +603,26 @@ describe('tests of PowerBIEmbed', function () {
 		it('clears and sets the event handlers', () => {
 
 			// Arrange
-			let testReport: Report = undefined;
-			let eventHandlers = new Map([
+			const eventHandlers = new Map([
 				['loaded', function () { }],
 				['rendered', function () { }],
 				['error', function () { }]
 			]);
 
 			// Initialise testReport
-			act(() => {
-				ReactDOM.render(
-					<PowerBIEmbed
-						embedConfig={{ type: 'report' }}
-						getEmbeddedComponent={(callbackReport: Report) => {
-							testReport = callbackReport;
-						}}
-					/>, container);
-			});
+			const testReport = renderReport({ type: 'report' }, root);
 
 			spyOn(testReport, 'off');
 			spyOn(testReport, 'on');
 
 			// Act
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={{ type: 'report' }}
 						eventHandlers={eventHandlers}
-					/>, container);
+					/>
+				);
 			});
 
 			// Assert
@@ -1020,39 +633,31 @@ describe('tests of PowerBIEmbed', function () {
 		it('clears the already set event handlers in case of null provided for handler', () => {
 
 			// Arrange
-			let testReport: Report = undefined;
 			const eventHandlers = new Map([
 				['loaded', function () { }],
 				['rendered', function () { }],
 				['error', function () { }]
 			]);
-			const newEventHandlers = new Map([
+			const newEventHandlers = new Map<string, EventHandler>([
 				['loaded', null],
 				['rendered', null],
 				['error', function () { }]
 			]);
 
 			// Initialise testReport
-			act(() => {
-				ReactDOM.render(
-					<PowerBIEmbed
-						embedConfig={{ type: 'report' }}
-						getEmbeddedComponent={(callbackReport: Report) => {
-							testReport = callbackReport;
-						}}
-					/>, container);
-			});
+			const testReport = renderReport({ type: 'report' }, root);
 
 			spyOn(testReport, 'off');
 			spyOn(testReport, 'on');
 
 			// Act
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={{ type: 'report' }}
 						eventHandlers={newEventHandlers}
-					/>, container);
+					/>
+				);
 			});
 
 			// Assert
@@ -1083,11 +688,12 @@ describe('tests of PowerBIEmbed', function () {
 
 			// Act
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={{ type: 'report' }}
 						eventHandlers={eventHandlers}
-					/>, container);
+					/>
+				);
 			});
 
 			// Assert
@@ -1122,6 +728,7 @@ describe('tests of PowerBIEmbed', function () {
 			});
 
 			// Ignoring next line as setEventHandlers is a private method
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			// @ts-ignore
 			powerbiembed.setEventHandlers(embed, eventHandlers);
 
@@ -1132,7 +739,7 @@ describe('tests of PowerBIEmbed', function () {
 		it('does not set the same eventhandler map again', () => {
 
 			// Arrange
-			let testReport: Report = undefined;
+			let testReport!: Report;
 			const eventHandlers = new Map([
 				['loaded', function () { }],
 				['rendered', function () { }],
@@ -1146,14 +753,15 @@ describe('tests of PowerBIEmbed', function () {
 
 			// Initialise testReport
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={{ type: 'report' }}
-						getEmbeddedComponent={(callbackReport: Report) => {
-							testReport = callbackReport;
+						getEmbeddedComponent={(callbackReport: Embed) => {
+							testReport = callbackReport as Report;
 						}}
 						eventHandlers={eventHandlers}
-					/>, container);
+					/>
+				);
 			});
 
 			spyOn(testReport, 'off');
@@ -1161,11 +769,12 @@ describe('tests of PowerBIEmbed', function () {
 
 			// Act
 			act(() => {
-				ReactDOM.render(
+				root.render(
 					<PowerBIEmbed
 						embedConfig={{ type: 'report' }}
 						eventHandlers={newSameEventHandlers}
-					/>, container);
+					/>
+				);
 			});
 
 			// Assert

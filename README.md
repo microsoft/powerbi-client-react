@@ -188,6 +188,10 @@ async getReportPages(): Page[] {
 ```
 
 
+## Note
+
+The library supports React applications having version **>= 18**.
+
 ## Dependencies
 
 [powerbi-client](https://www.npmjs.com/package/powerbi-client)
@@ -220,6 +224,7 @@ If you use these features, you must comply with applicable law, including provid
 Our privacy statement is located at [Microsoft Privacy Statement](https://privacy.microsoft.com/privacystatement). You can learn more about data collection and use in the help documentation and our privacy statement. Your use of the software operates as your consent to these practices.
 
 ## Support
+
 - **Feature Requests:** Submit your ideas and suggestions to the [Fabric Ideas Portal](https://ideas.fabric.microsoft.com/), where you can also vote on ideas from other developers.
 - **Bug Reports and Technical Assistance:** Visit the [Fabric Developer Community Forum](https://community.fabric.microsoft.com/t5/Developer/bd-p/Developer). Our team and community experts are ready to assist you.
 - **Additional Support:** Contact your account manager or reach out to the [Fabric Support Team](https://support.fabric.microsoft.com/en-us/support/).

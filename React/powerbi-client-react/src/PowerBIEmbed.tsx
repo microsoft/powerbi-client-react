@@ -11,23 +11,20 @@ import {
 	Tile,
 	Qna,
 	Visual,
-	IEmbedSettings,
 	IQnaEmbedConfiguration,
 	IVisualEmbedConfiguration,
 	IReportEmbedConfiguration,
 	IDashboardEmbedConfiguration,
 	ITileEmbedConfiguration,
 } from 'powerbi-client';
-import { IReportCreateConfiguration, IPaginatedReportLoadConfiguration, ReportLevelFilters, FiltersOperations } from 'powerbi-models';
+import { IReportCreateConfiguration, IPaginatedReportLoadConfiguration } from 'powerbi-models';
 import isEqual from 'lodash.isequal';
 import { stringifyMap, SdkType, SdkWrapperVersion } from './utils';
 
 /**
  * Type for event handler function of embedded entity
  */
-export type EventHandler = {
-	(event?: service.ICustomEvent<any>, embeddedEntity?: Embed): void | null;
-};
+export type EventHandler = ((event?: service.ICustomEvent<any>, embeddedEntity?: Embed) => void) | null;
 
 /**
  * Props interface for PowerBIEmbed component
@@ -138,46 +135,14 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 
 	async componentDidUpdate(prevProps: EmbedProps): Promise<void> {
 
-		this.embedOrUpdateAccessToken(prevProps);
-
 		// Set event handlers if available
 		if (this.props.eventHandlers && this.embed) {
 			this.setEventHandlers(this.embed, this.props.eventHandlers);
 		}
 
-		// Allow settings update only when settings object in embedConfig of current and previous props is different
-		if (!isEqual(this.props.embedConfig.settings, prevProps.embedConfig.settings)) {
-			await this.updateSettings();
-		}
-
-		// Update pageName and filters for a report
-		if (this.props.embedConfig.type === EmbedType.Report) {
-			try {
-				// Typecasting to IReportEmbedConfiguration
-				const embedConfig = this.props.embedConfig as IReportEmbedConfiguration;
-				const filters = embedConfig.filters as ReportLevelFilters[];
-				const prevEmbedConfig = prevProps.embedConfig as IReportEmbedConfiguration;
-
-				// Set new page if available and different from the previous page
-				if (embedConfig.pageName && embedConfig.pageName !== prevEmbedConfig.pageName) {
-					// Upcast to Report and call setPage
-					await (this.embed as Report).setPage(embedConfig.pageName);
-				}
-
-				// Set filters on the embedded report if available and different from the previous filter
-				if (filters && !isEqual(filters, prevEmbedConfig.filters)) {
-					// Upcast to Report and call updateFilters with the Replace filter operation
-					await (this.embed as Report).updateFilters(FiltersOperations.Replace, filters);
-				}
-
-				// Remove filters on the embedded report, if previously applied
-				else if (!filters && prevEmbedConfig.filters) {
-					// Upcast to Report and call updateFilters with the RemoveAll filter operation
-					await (this.embed as Report).updateFilters(FiltersOperations.RemoveAll);
-				}
-			} catch (err) {
-				console.error(err);
-			}
+		// Re-embed when the current embedConfig differs from the previous embedConfig
+		if(!isEqual(this.props.embedConfig, prevProps.embedConfig)){
+			this.embedEntity();
 		}
 	};
 
@@ -204,8 +169,9 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 	 * Embed the powerbi entity (Load for phased embedding)
 	 */
 	private embedEntity(): void {
-		// Check if the HTML container is rendered and available
-		if (!this.containerRef.current) {
+		// Ensure that the HTML container is rendered and available
+		// Also check if the Embed URL and Access Token are present in current props
+		if (!this.containerRef.current || !this.props.embedConfig.accessToken || !this.props.embedConfig.embedUrl) {
 			return;
 		}
 
@@ -223,46 +189,6 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 			}
 			else {
 				this.embed = this.powerbi.embed(this.containerRef.current, this.props.embedConfig);
-			}
-		}
-	}
-
-	/**
-	 * When component updates, choose to _embed_ the powerbi entity or _update the accessToken_ in the embedded entity
-	 * or do nothing if the embedUrl and accessToken did not update in the new props
-	 *
-	 * @param prevProps EmbedProps
-	 * @returns void
-	 */
-	private async embedOrUpdateAccessToken(prevProps: EmbedProps): Promise<void> {
-
-		// Check if Embed URL and Access Token are present in current props
-		if (!this.props.embedConfig.accessToken || !this.props.embedConfig.embedUrl) {
-			return;
-		}
-
-		// Embed or load in the following scenarios
-		//		1. AccessToken was not provided in prev props (E.g. Report was bootstrapped earlier)
-		//		2. Embed URL is updated (E.g. New report is to be embedded)
-		if (
-			this.containerRef.current &&
-			(!prevProps.embedConfig.accessToken ||
-				this.props.embedConfig.embedUrl !== prevProps.embedConfig.embedUrl)
-		) {
-			this.embedEntity();
-		}
-
-		// Set new access token,
-		// when access token is updated but embed Url is same
-		else if (
-			this.props.embedConfig.accessToken !== prevProps.embedConfig.accessToken &&
-			this.props.embedConfig.embedUrl === prevProps.embedConfig.embedUrl &&
-			this.embed
-		) {
-			try {
-				await this.embed.setAccessToken(this.props.embedConfig.accessToken);
-			} catch(error) {
-				console.error("setAccessToken error:\n", error);
 			}
 		}
 	}
@@ -358,42 +284,6 @@ export class PowerBIEmbed extends React.Component<EmbedProps> {
 	private invokeGetEmbedCallback(): void {
 		if (this.props.getEmbeddedComponent && this.embed) {
 			this.props.getEmbeddedComponent(this.embed);
-		}
-	};
-
-	/**
-	 * Update settings from props of the embedded artifact
-	 *
-	 * @returns void
-	 */
-	private async updateSettings(): Promise<void> {
-		if (!this.embed || !this.props.embedConfig.settings) {
-			return;
-		}
-
-		switch (this.props.embedConfig.type) {
-			case EmbedType.Report: {
-				// Typecasted to IEmbedSettings as props.embedConfig.settings can be ISettings via IQnaEmbedConfiguration
-				const settings = this.props.embedConfig.settings as IEmbedSettings;
-
-				try {
-					// Upcast to Report and call updateSettings
-					await (this.embed as Report).updateSettings(settings);
-				} catch (error) {
-					console.error(`Error in method updateSettings: ${error}`);
-				}
-
-				break;
-			}
-			case EmbedType.Dashboard:
-			case EmbedType.Tile:
-			case EmbedType.Qna:
-			case EmbedType.Visual:
-				// updateSettings not applicable for these embedding types
-				break;
-
-			default:
-				console.error(`Invalid embed type ${this.props.embedConfig.type}`);
 		}
 	};
 }

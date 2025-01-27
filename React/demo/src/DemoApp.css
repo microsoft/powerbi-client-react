@@ -1,15 +1,32 @@
 /* Copyright (c) Microsoft Corporation.
 Licensed under the MIT License. */
 
-.report-container {
-	height: 75vh;
-	margin: 8px auto;
-	width: 90%;
-}
-
 body {
 	font-family: 'Segoe UI';
 	margin: 0;
+}
+
+button {
+	background: #117865;
+	border: 0;
+	border-radius: 5px;
+	color: #ffffff;
+	cursor: pointer;
+	font-size: 16px;
+	height: 35px;
+	margin-bottom: 8px;
+	margin-right: 15px;
+	min-width: 270px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	width: calc((100% / 3) - 120px);
+}
+
+.button-container {
+	margin-left: auto;
+	margin-right: auto;
+	max-width: 1120px;
 }
 
 .container {
@@ -18,13 +35,10 @@ body {
 	height: 100vh;
 }
 
-.header {
-	background: #3476ae 0 0 no-repeat padding-box;
-	border: 1px solid #707070;
-	color: #ffffff;
-	font: 700 22px/27px 'Segoe UI';
-	padding: 13px 13px 13px 36px;
-	text-align: left;
+.controls {
+	flex: 1;
+	margin-top: 20px;
+	text-align: center;
 }
 
 .display-message {
@@ -33,24 +47,14 @@ body {
 	font: 400 18px/27px 'Segoe UI';
 	height: 30px;
 	justify-content: center;
-	margin-top: 8px;
 	text-align: center;
-}
-
-.position {
-	margin-top: 40vh;
 }
 
 .embed-report {
+	margin-right: 0;
 	margin-top: 18px;
 	text-align: center;
-	margin-right: 0;
-}
-
-.controls {
-	margin-top: 20px;
-	text-align: center;
-	flex: 1;
+	width: 180px;
 }
 
 .footer {
@@ -63,6 +67,11 @@ body {
 	width: 100%;
 }
 
+.footer a {
+	color: #3a3a3a;
+	text-decoration: underline;
+}
+
 .footer * {
 	padding: 0 3px;
 }
@@ -73,26 +82,42 @@ body {
 	vertical-align: middle;
 }
 
-.footer a {
-	color: #3a3a3a;
-	text-decoration: underline;
-}
-
-button {
-	background: #337ab7;
-	border: 0;
-	border-radius: 5px;
+.header {
+	background: #117865 0 0 no-repeat padding-box;
+	border: 1px solid #707070;
 	color: #ffffff;
-	font-size: 16px;
-	height: 35px;
-	margin-right: 15px;
-	width: 160px;
-}
-
-button:hover {
-  cursor: pointer;
+	font: 700 22px/27px 'Segoe UI';
+	padding: 13px 13px 13px 36px;
+	text-align: left;
 }
 
 iframe {
 	border: none;
+}
+
+.position {
+	margin-top: 40vh;
+}
+
+.report-container {
+	height: 75vh;
+	margin: 8px auto;
+	width: 90%;
+}
+
+@media screen and (max-width: 980px) {
+    p {
+        font-size: 12px;
+    }
+}
+
+@media screen and (max-width: 767px) {
+	.display-message {
+		font: 400 14px 'Segoe UI';
+	}
+
+	.footer {
+		font: 400 8px 'Segoe UI';
+		height: 64px;
+	}
 }

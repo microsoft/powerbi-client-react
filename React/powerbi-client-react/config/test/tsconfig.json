@@ -9,6 +9,7 @@
 			"ES2016",
 		  	"dom"
 		],
+		"types": ["jasmine"],
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
 		"strict": false,
